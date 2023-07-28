@@ -1,2 +1,3 @@
 # Syphus
- Sythus: Automatic Instruction-Response Generation Pipeline
+
+Sythus: Automatic Instruction-Response Generation Pipeline
