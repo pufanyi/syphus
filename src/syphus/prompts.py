@@ -11,6 +11,10 @@ class QAPair(object):
     def to_dict(self):
         return {"question": self.question, "answer": self.answer}
 
+    def from_dict(self, qa_pair_dict: Dict[str, str]):
+        self.question = qa_pair_dict["question"]
+        self.answer = qa_pair_dict["answer"]
+
     def __str__(self):
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
