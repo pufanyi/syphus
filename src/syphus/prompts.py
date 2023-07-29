@@ -1,4 +1,5 @@
 import json
+import yaml
 from typing import List, Dict
 
 
@@ -161,3 +162,24 @@ class Prompts(object):
                 {"role": "assistant", "content": example.get_formatted_qa_pairs()}
             )
         return messages
+
+    def to_dict(self) -> List[Dict[str, any]]:
+        """
+        Converts the Prompts object to a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the Prompts object.
+        """
+        return {
+            "system_message": self.system_message,
+            "in_context_examples": [example.to_dict() for example in self.in_context_examples],
+        }
+
+    def to_yaml(self) -> str:
+        """
+        Converts the Prompts object to a YAML string.
+
+        Returns:
+            str: A YAML string representation of the Prompts object.
+        """
+        return yaml.dump(self.to_dict())
