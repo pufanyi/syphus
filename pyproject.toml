@@ -20,3 +20,6 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/pufanyi/syphus"
 "Bug Tracker" = "https://github.com/pufanyi/syphus/issues"
+
+[tool.hatchling.scripts]
+syphus = "syphus_cli:main"

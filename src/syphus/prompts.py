@@ -1,6 +1,7 @@
 import json
 from typing import List, Dict
 
+
 class QAPair(object):
     """
     Represents a Question-Answer pair.
@@ -132,7 +133,9 @@ class Prompts(object):
         in_context_examples (List[InContextExample]): A list of InContextExample objects representing examples.
     """
 
-    def __init__(self, system_message: str, in_context_examples: List[InContextExample] = []):
+    def __init__(
+        self, system_message: str, in_context_examples: List[InContextExample] = []
+    ):
         """
         Initializes a new Prompts object.
 
