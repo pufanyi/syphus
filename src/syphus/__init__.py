@@ -1,4 +1,4 @@
-from prompts import (
+from .prompts import (
     QAPair,
     InContextExample,
     Prompts,
