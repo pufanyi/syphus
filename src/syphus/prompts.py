@@ -172,7 +172,9 @@ class Prompts(object):
         """
         return {
             "system_message": self.system_message,
-            "in_context_examples": [example.to_dict() for example in self.in_context_examples],
+            "in_context_examples": [
+                example.to_dict() for example in self.in_context_examples
+            ],
         }
 
     def to_yaml(self) -> str:
