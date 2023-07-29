@@ -1,4 +1,4 @@
-from syphus import QAPair, InContextExample, Prompts
+from syphus import QAPair
 
 
 sample_qa_pair = {
