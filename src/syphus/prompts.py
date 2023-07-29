@@ -11,7 +11,7 @@ class QAPair(object):
         answer (str): The answer corresponding to the question.
     """
 
-    def __init__(self, question: str, answer: str):
+    def __init__(self, question: str = "", answer: str = ""):
         """
         Initializes a new QAPair object.
 
@@ -21,16 +21,6 @@ class QAPair(object):
         """
         self.question = question
         self.answer = answer
-
-    def __init__(self, qa_pair_dict: Dict[str, str]):
-        """
-        Initializes a new QAPair object, populating it from a dictionary.
-
-        Args:
-            qa_pair_dict (Dict[str, str]): A dictionary containing 'question' and 'answer' keys.
-        """
-        self.question = qa_pair_dict["question"]
-        self.answer = qa_pair_dict["answer"]
 
     def to_dict(self) -> Dict[str, str]:
         """

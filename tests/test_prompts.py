@@ -19,6 +19,7 @@ def test_qa_pair_to_dict():
 
 
 def test_qa_pair_from_dict():
-    qa_pair = QAPair(sample_qa_pair)
+    qa_pair = QAPair()
+    qa_pair.from_dict(sample_qa_pair)
     assert qa_pair.question == sample_qa_pair["question"]
     assert qa_pair.answer == sample_qa_pair["answer"]
