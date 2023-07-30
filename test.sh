@@ -7,7 +7,7 @@ display_usage() {
     echo "  -h, --help              Display this help message."
     echo "  -d, --dir <directory>   Specify the source directory to test coverage (default: src)."
     echo "  -o, --output <output>   Specify the output directory for coverage reports (default: htmlcov)."
-    echo "  --                    Use double dash (--) to separate options from arguments for pytest."
+    echo "  --                      Use double dash (--) to separate options from arguments for pytest."
 }
 
 # Default values for options
