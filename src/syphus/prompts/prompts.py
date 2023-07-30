@@ -1,6 +1,7 @@
 import yaml
 
 import syphus.prompts.in_context_example as in_context_example
+import syphus.prompts.qa_pair as qa_pair
 from typing import List, Dict, Any
 
 
@@ -58,14 +59,39 @@ class Prompts(object):
             ],
         }
 
-    def to_yaml(self) -> str:
+    def to_yaml(self, *, sort_keys: bool = False, indent: int = 2) -> str:
         """
         Converts the Prompts object to a YAML string.
 
         Returns:
             str: A YAML string representation of the Prompts object.
         """
-        return yaml.dump(self.to_dict())
+        examples = []
+        for example in self.in_context_examples:
+            examples.append(
+                {
+                    "user": example.context,
+                    "assistant": [
+                        qa_pair.to_dict(qa_pair) for qa_pair in example.qa_pairs
+                    ],
+                }
+            )
+
+        yaml_dict = {
+            "system_message": self.system_message,
+            "in_context_examples": examples,
+        }
+        return yaml.safe_dump(yaml_dict, sort_keys=sort_keys, indent=indent)
+
+    def save_yaml(self, yaml_path: str, *, sort_keys: bool = False, indent: int = 2):
+        """
+        Saves the Prompts object to a YAML file.
+
+        Args:
+            yaml_path (str): The path to save the YAML file to.
+        """
+        with open(yaml_path, "w") as f:
+            f.write(self.to_yaml(sort_keys=sort_keys, indent=indent))
 
 
 def from_dict(data: Dict[str, Any]) -> Prompts:
@@ -87,7 +113,18 @@ def from_dict(data: Dict[str, Any]) -> Prompts:
     )
 
 
-def read_yaml(yaml_path) -> Dict[str, Any]:
+def read_yaml(yaml_path) -> Prompts:
     with open(yaml_path, "r") as f:
         prompts = yaml.safe_load(f)
-    return prompts
+    examples = []
+    for example in prompts["in_context_examples"]:
+        examples.append(
+            in_context_example.InContextExample(
+                example["user"],
+                [
+                    qa_pair.QAPair(qa["question"], qa["answer"])
+                    for qa in example["assistant"]
+                ],
+            )
+        )
+    return Prompts(prompts["system_message"], examples)
