@@ -24,6 +24,7 @@ def test_qa_pair_from_dict():
     assert qa.question == sample_qa_pair["question"]
     assert qa.answer == sample_qa_pair["answer"]
 
+
 def test_qa_pair_to_str():
     qa = qa_pair.QAPair(**sample_qa_pair)
     assert json.loads(str(qa)) == sample_qa_pair
