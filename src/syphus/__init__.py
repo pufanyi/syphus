@@ -1,5 +1,5 @@
 from .prompts import (
-    QAPair,
-    InContextExample,
-    Prompts,
+    prompts,
+    qa_pair,
+    in_context_example,
 )
