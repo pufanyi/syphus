@@ -71,9 +71,7 @@ class Prompts(object):
             examples.append(
                 {
                     "user": example.context,
-                    "assistant": [
-                        qa.to_dict() for qa in example.qa_pairs
-                    ],
+                    "assistant": [qa.to_dict() for qa in example.qa_pairs],
                 }
             )
 
