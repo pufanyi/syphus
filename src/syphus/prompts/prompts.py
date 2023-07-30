@@ -45,7 +45,7 @@ class Prompts(object):
             )
         return messages
 
-    def to_dict(self) -> List[Dict[str, any]]:
+    def to_dict(self) -> List[Dict[str, Any]]:
         """
         Converts the Prompts object to a dictionary.
 
@@ -105,7 +105,7 @@ def from_dict(data: Dict[str, Any]) -> Prompts:
     return Prompts(
         data["system_message"],
         [
-            in_context_example.InContextExample(example)
+            in_context_example.from_dict(example)
             for example in data["in_context_examples"]
         ],
     )

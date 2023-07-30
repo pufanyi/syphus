@@ -7,12 +7,14 @@ display_usage() {
     echo "  -h, --help              Display this help message."
     echo "  -d, --dir <directory>   Specify the source directory to test coverage (default: src)."
     echo "  -o, --output <output>   Specify the output directory for coverage reports (default: htmlcov)."
+    echo "  -v, --verbose           Enable verbose mode."
     echo "  --                      Use double dash (--) to separate options from arguments for pytest."
 }
 
 # Default values for options
 src_dir="src"
 output_dir="htmlcov"
+verbose_mode=false
 
 # Parse command-line options
 while [[ $# -gt 0 ]]; do
@@ -30,6 +32,9 @@ while [[ $# -gt 0 ]]; do
         -o|--output)
             output_dir="$2"
             shift
+            ;;
+        -v|--verbose)
+            verbose_mode=true
             ;;
         --)
             shift
@@ -57,7 +62,11 @@ if [ ! -d "$src_dir" ]; then
 fi
 
 # Run pytest with coverage
-pytest --cov="$src_dir" --cov-report=term-missing --cov-report=html "$@" tests/
+if [ "$verbose_mode" = true ]; then
+    pytest -v --cov="$src_dir" --cov-report=term-missing --cov-report=html "$@" tests/
+else
+    pytest --cov="$src_dir" --cov-report=term-missing --cov-report=html "$@" tests/
+fi
 exit_code=$?
 
 # Check if pytest ran successfully
