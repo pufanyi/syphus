@@ -1,0 +1,82 @@
+system_message: |
+  You are an AI assistant that can understand videos, you can observe multiple frames in the given video. Your are provided with the timestamps and corresponding descriptions in following format:
+
+  timestamps: [[0, 19], [17, 60]]
+  sentences: ["A young woman is seen standing in a room and leads into her dancing."," The girl dances around the room while the camera captures her movements."]
+
+  The first description "A young woman is seen standing in a room and leads into her dancing." is happening from 0 to 19 seconds, while the second description is happening from 17 to 60 seconds.
+
+  Design a conversation between you and a person asking about this video. The answers should be in a tone that a visual AI assistant is seeing the image and answering the question.
+
+  Ask diverse questions and give corresponding answers.
+
+  Include questions asking about the visual content of the video. The questions you posed can include the actions and behaviors of people or objects in the video, the chronological order of events, and causal relationships. Only include questions that have definite answers. Do not ask any question that cannot be answered confidently.
+
+  When using the information from the description, directly explain the scene, and do not mention anything about the descriptions. When you unsure about the answer, you can say you are not certain and provide a reasonable guess.
+
+
+in_context_examples:
+  - user: |
+      timestamps: [[0, 91], [73, 174], [168, 212]]
+      sentences: ["Several shots of boats are shown riding around as well as people riding on the boats and speaking to one another.",  " Several shots are then shown of people sitting on the water as well as life under the water.",  " The camera pans around old cars under water as well as people in the area."]
+    assistant:
+      - question: What is the main theme of this video?
+        answer: The main theme of this video is centered around water activities, featuring scenes of boats, people on boats, underwater life, and exploring underwater areas with old cars.
+      - question: What are people doing on the boats?
+        answer: People on the boats are riding around and engaging in conversations with one another.
+      - question: What happens after the boat scenes?
+        answer: After the boat scenes, the video shows several shots of people sitting on the water and exploring life beneath the water's surface.
+      - question: Is there any dialogue in the video?
+        answer: Yes, there is dialogue in the video as people are shown speaking to one another while on the boats.
+      - question: What is the setting of this video?
+        answer: The setting of this video is primarily in and around a body of water, featuring scenes of boats, people on the water, and underwater exploration.
+      - question: What type of boats are shown in the video?
+        answer: I am not certain about the exact types of boats shown in the video, but multiple boats are featured, and people are enjoying their time riding around on them.
+      - question: Why are all the subsequent scenes underwater?
+        answer: Because the cameraperson is using a GoPro-like camera to enter the water and capture the underwater scenes.
+      - question: Are there any safety measures observed in the video, such as life jackets or flotation devices?
+        answer: I cannot confidently determine the specific safety measures employed in the video. It is essential, however, that people engaging in water activities should prioritize safety and use appropriate equipment, such as life jackets and flotation devices.
+
+  - user: |
+      timestamps: [[0, 91], [73, 174], [168, 212]]
+      sentences: ["Several shots of boats are shown riding around as well as people riding on the boats and speaking to one another.",  " Several shots are then shown of people sitting on the water as well as life under the water.",  " The camera pans around old cars under water as well as people in the area."]
+
+    assistant:
+      - question: What is the main theme of this video?
+        answer: The main theme of this video is centered around water activities, featuring scenes of boats, people on boats, underwater life, and exploring underwater areas with old cars.
+      - question: What are people doing on the boats?
+        answer: People on the boats are riding around and engaging in conversations with one another.
+      - question: What happens after the boat scenes?
+        answer: After the boat scenes, the video shows several shots of people sitting on the water and exploring life beneath the water's surface.
+      - question: Is there any dialogue in the video?
+        answer: Yes, there is dialogue in the video as people are shown speaking to one another while on the boats.
+      - question: What is the setting of this video?
+        answer: The setting of this video is primarily in and around a body of water, featuring scenes of boats, people on the water, and underwater exploration.
+      - question: What type of boats are shown in the video?
+        answer: I am not certain about the exact types of boats shown in the video, but multiple boats are featured, and people are enjoying their time riding around on them.
+      - question: Why are all the subsequent scenes underwater?
+        answer: Because the cameraperson is using a GoPro-like camera to enter the water and capture the underwater scenes.
+      - question: Are there any safety measures observed in the video, such as life jackets or flotation devices?
+        answer: I cannot confidently determine the specific safety measures employed in the video. It is essential, however, that people engaging in water activities should prioritize safety and use appropriate equipment, such as life jackets and flotation devices.
+
+  - user: |
+      timestamps: [[0, 2], [3, 61], [15, 55], [17, 54], [39, 54], [56, 61]]
+      sentences: ["The video starts with a title logo sequence.", " A man and woman are in a living room demonstrating exercises.", " The woman lays on the ground.", " The man starts pointing to different areas of the woman's body as she does an exercise.", " The woman begins to do small sit ups.", " The woman ends with a final title logo sequence."]
+
+    assistant:
+      - question: What is the main topic of this video?
+        answer: The main topic of this video is an exercise demonstration, featuring a man and a woman in a living room performing and explaining various exercises.
+      - question: What happens at the beginning and end of the video?
+        answer: The video starts and ends with a title logo sequence.
+      - question: What is the first exercise that the woman performs?
+        answer: The first exercise the woman performs involves her lying on the ground.
+      - question: How does the man assist the woman during the exercise demonstration?
+        answer: The man assists the woman by pointing to different areas of her body as she performs the exercises, providing guidance and explanation.
+      - question: What is the second exercise that the woman performs?
+        answer: The second exercise the woman performs is small sit-ups.
+      - question: What is the relationship between the man and the woman in the video?
+        answer: I cannot confidently determine their exact relationship, but they appear to be working together as a team to demonstrate and explain the exercises.
+      - question: How long is the exercise demonstration portion of the video?
+        answer: The exercise demonstration portion of the video lasts from 3 to 61 seconds, with different exercises being performed at various time intervals.
+      - question: Are any exercise equipment or props used in the video?
+        answer: There is no mention of any exercise equipment or props being used in the video. The exercises demonstrated appear to be bodyweight exercises that can be performed without additional equipment.

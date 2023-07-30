@@ -1,10 +1,10 @@
+import yaml
+
 from syphus import QAPair
 
 
-sample_qa_pair = {
-    "question": "What is the meaning of life?",
-    "answer": "42",
-}
+with open("../data/dense_captions_prompt.yaml", "r") as f:
+    sample_qa_pair = yaml.safe_load(f)["in_context_examples"][0]["assistant"][0]
 
 
 def test_qa_pair_init():
@@ -14,7 +14,7 @@ def test_qa_pair_init():
 
 
 def test_qa_pair_to_dict():
-    qa_pair = QAPair(**sample_qa_pair)
+    qa_pair = QAPair(sample_qa_pair)
     qa_pair.to_dict() == sample_qa_pair
 
 
