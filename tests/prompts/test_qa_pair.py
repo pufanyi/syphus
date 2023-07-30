@@ -1,4 +1,5 @@
 import yaml
+import json
 
 from syphus import qa_pair
 
@@ -22,3 +23,7 @@ def test_qa_pair_from_dict():
     qa = qa_pair.from_dict(sample_qa_pair)
     assert qa.question == sample_qa_pair["question"]
     assert qa.answer == sample_qa_pair["answer"]
+
+def test_qa_pair_to_str():
+    qa = qa_pair.QAPair(**sample_qa_pair)
+    assert json.loads(str(qa)) == sample_qa_pair
