@@ -25,3 +25,9 @@ def test_read_yaml():
                 qa_pair.answer
                 == prompt_dict["in_context_examples"][i]["assistant"][j]["answer"]
             )
+
+
+def test_to_yaml():
+    prompt = prompts.read_yaml("tests/data/dense_captions_prompt.yaml")
+    prompt_yaml = prompt.to_yaml()
+    assert yaml.safe_load(prompt_yaml) == prompt_dict

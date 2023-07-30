@@ -59,7 +59,7 @@ class Prompts(object):
             ],
         }
 
-    def to_yaml(self, *, sort_keys: bool = False, indent: int = 2) -> str:
+    def to_yaml(self, *, indent: int = 2) -> str:
         """
         Converts the Prompts object to a YAML string.
 
@@ -72,7 +72,7 @@ class Prompts(object):
                 {
                     "user": example.context,
                     "assistant": [
-                        qa_pair.to_dict(qa_pair) for qa_pair in example.qa_pairs
+                        qa.to_dict() for qa in example.qa_pairs
                     ],
                 }
             )
@@ -81,9 +81,9 @@ class Prompts(object):
             "system_message": self.system_message,
             "in_context_examples": examples,
         }
-        return yaml.safe_dump(yaml_dict, sort_keys=sort_keys, indent=indent)
+        return yaml.safe_dump(yaml_dict, indent=indent)
 
-    def save_yaml(self, yaml_path: str, *, sort_keys: bool = False, indent: int = 2):
+    def save_yaml(self, yaml_path: str, *, indent: int = 2):
         """
         Saves the Prompts object to a YAML file.
 
@@ -91,7 +91,7 @@ class Prompts(object):
             yaml_path (str): The path to save the YAML file to.
         """
         with open(yaml_path, "w") as f:
-            f.write(self.to_yaml(sort_keys=sort_keys, indent=indent))
+            f.write(self.to_yaml(indent=indent))
 
 
 def from_dict(data: Dict[str, Any]) -> Prompts:
