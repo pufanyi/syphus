@@ -1,3 +1,5 @@
+test_gpt_part: false
+
 OpenAI_API:
   type: local
   base: http://localhost:8000
