@@ -1,0 +1,5 @@
+OpenAI_API:
+  type: local
+  base: http://localhost:8000
+  version: 2020-04-01
+  key: YOUR_API_KEY
