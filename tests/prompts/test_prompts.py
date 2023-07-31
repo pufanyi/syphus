@@ -1,6 +1,7 @@
-from syphus import prompts
+from syphus import prompts, in_context_example, qa_pair
 
 import yaml
+import pytest
 
 
 test_yaml_path = "tests/data/dense_captions_prompt.yaml"
@@ -65,3 +66,42 @@ def test_save_yaml():
     prompt_yaml_path = "tests/test_output/test_save_yaml.yaml"
     prompt.save_yaml(prompt_yaml_path)
     yaml.safe_load(prompt_yaml_path) == yaml.safe_load(test_yaml_path)
+
+
+@pytest.fixture
+def sample_qa_pairs():
+    return [
+        qa_pair.QAPair("What is the capital of France?", "Paris"),
+        qa_pair.QAPair("Who wrote the play 'Hamlet'?", "William Shakespeare"),
+    ]
+
+
+@pytest.fixture
+def sample_in_context_example(sample_qa_pairs):
+    return in_context_example.InContextExample(
+        "This is the context.", qa_pairs=sample_qa_pairs
+    )
+
+
+@pytest.fixture
+def sample_prompts(sample_in_context_example):
+    return prompts.Prompts(
+        "System Message", in_context_examples=[sample_in_context_example]
+    )
+
+
+def test_get_messages(sample_prompts):
+    prompts = sample_prompts
+    messages = prompts.get_messages()
+
+    assert isinstance(messages, list)
+    assert len(messages) == 3
+    assert messages[0]["role"] == "system"
+    assert messages[0]["content"] == "System Message"
+    assert messages[1]["role"] == "user"
+    assert messages[1]["content"] == "This is the context."
+    assert messages[2]["role"] == "assistant"
+    assert "What is the capital of France?" in messages[2]["content"]
+    assert "Paris" in messages[2]["content"]
+    assert "Who wrote the play 'Hamlet'?" in messages[2]["content"]
+    assert "William Shakespeare" in messages[2]["content"]
