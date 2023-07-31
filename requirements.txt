@@ -1,1 +1,1 @@
-PyYAML==6.0.1
+ruamel.base==1.0.0
