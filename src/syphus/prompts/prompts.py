@@ -1,5 +1,4 @@
-import yaml
-
+import syphus.utils.yaml as yaml
 import syphus.prompts.in_context_example as in_context_example
 import syphus.prompts.qa_pair as qa_pair
 from typing import List, Dict, Any
@@ -59,13 +58,7 @@ class Prompts(object):
             ],
         }
 
-    def to_yaml(self, *, indent: int = 2) -> str:
-        """
-        Converts the Prompts object to a YAML string.
-
-        Returns:
-            str: A YAML string representation of the Prompts object.
-        """
+    def get_yaml_dict(self) -> Dict[str, Any]:
         examples = []
         for example in self.in_context_examples:
             examples.append(
@@ -79,17 +72,25 @@ class Prompts(object):
             "system_message": self.system_message,
             "in_context_examples": examples,
         }
-        return yaml.safe_dump(yaml_dict, indent=indent)
+        return yaml_dict
 
-    def save_yaml(self, yaml_path: str, *, indent: int = 2):
+    def to_yaml(self, **kw) -> str:
+        """
+        Converts the Prompts object to a YAML string.
+
+        Returns:
+            str: A YAML string representation of the Prompts object.
+        """
+        return yaml.dumps(self.get_yaml_dict(), **kw)
+
+    def save_yaml(self, yaml_path: str, **kw):
         """
         Saves the Prompts object to a YAML file.
 
         Args:
             yaml_path (str): The path to save the YAML file to.
         """
-        with open(yaml_path, "w") as f:
-            f.write(self.to_yaml(indent=indent))
+        yaml.dump(self.get_yaml_dict(), yaml_path, **kw)
 
 
 def from_dict(data: Dict[str, Any]) -> Prompts:
@@ -112,8 +113,7 @@ def from_dict(data: Dict[str, Any]) -> Prompts:
 
 
 def read_yaml(yaml_path) -> Prompts:
-    with open(yaml_path, "r") as f:
-        prompts = yaml.safe_load(f)
+    prompts = yaml.load(yaml_path)
     examples = []
     for example in prompts["in_context_examples"]:
         examples.append(
