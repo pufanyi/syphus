@@ -3,12 +3,14 @@ from syphus import prompts
 import yaml
 
 
-with open("tests/data/dense_captions_prompt.yaml", "r") as f:
+test_yaml_path = "tests/data/dense_captions_prompt.yaml"
+
+with open(test_yaml_path, "r") as f:
     prompt_dict = yaml.safe_load(f)
 
 
 def test_read_yaml():
-    prompt = prompts.read_yaml("tests/data/dense_captions_prompt.yaml")
+    prompt = prompts.read_yaml(test_yaml_path)
     assert prompt.system_message == prompt_dict["system_message"]
     assert len(prompt.in_context_examples) == len(prompt_dict["in_context_examples"])
     for i, example in enumerate(prompt.in_context_examples):
@@ -28,13 +30,13 @@ def test_read_yaml():
 
 
 def test_to_yaml():
-    prompt = prompts.read_yaml("tests/data/dense_captions_prompt.yaml")
+    prompt = prompts.read_yaml(test_yaml_path)
     prompt_yaml = prompt.to_yaml()
     assert yaml.safe_load(prompt_yaml) == prompt_dict
 
 
 def test_to_dict():
-    prompt = prompts.read_yaml("tests/data/dense_captions_prompt.yaml").to_dict()
+    prompt = prompts.read_yaml(test_yaml_path).to_dict()
     assert prompt["system_message"] == prompt_dict["system_message"]
     assert len(prompt["in_context_examples"]) == len(prompt_dict["in_context_examples"])
     for i, example in enumerate(prompt["in_context_examples"]):
@@ -54,5 +56,12 @@ def test_to_dict():
 
 
 def test_from_dict():
-    prompt = prompts.read_yaml("tests/data/dense_captions_prompt.yaml").to_dict()
+    prompt = prompts.read_yaml(test_yaml_path).to_dict()
     assert prompts.from_dict(prompt).to_dict() == prompt
+
+
+def test_save_yaml():
+    prompt = prompts.read_yaml(test_yaml_path)
+    prompt_yaml_path = "tests/test_output/test_save_yaml.yaml"
+    prompt.save_yaml(prompt_yaml_path)
+    yaml.safe_load(prompt_yaml_path) == yaml.safe_load(test_yaml_path)
