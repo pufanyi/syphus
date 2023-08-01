@@ -5,7 +5,7 @@ from syphus import openai_settings
 
 @pytest.fixture
 def yaml_path():
-    return "tests/data/gpt_info.yaml"
+    return "tests/data/gpt_info.example.yaml"
 
 
 @pytest.fixture
