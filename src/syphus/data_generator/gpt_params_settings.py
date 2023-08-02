@@ -1,6 +1,6 @@
 from syphus.utils.settings import Settings
 
-from typing import List
+from typing import List, Optional
 
 
 class GPTParamsSettings(Settings):
@@ -12,7 +12,7 @@ class GPTParamsSettings(Settings):
         top_p: float = 0.95,
         frequency_penalty: float = 0,
         presence_penalty: float = 0,
-        stop: List[str] | None = None,
+        stop: Optional[List[str]] = None,
     ):
         self.temperature = temperature
         self.max_tokens = max_tokens
