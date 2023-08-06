@@ -41,6 +41,15 @@ class QAPair(object):
         """
         return json.dumps(self.to_dict(), indent=4, sort_keys=True)
 
+    def copy(self) -> "QAPair":
+        """
+        Returns a copy of the QAPair object.
+
+        Returns:
+            QAPair: A copy of the QAPair object.
+        """
+        return QAPair(self.question, self.answer)
+
 
 def from_dict(data: Dict[str, str]) -> QAPair:
     """

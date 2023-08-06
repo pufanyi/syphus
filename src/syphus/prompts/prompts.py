@@ -92,6 +92,18 @@ class Prompts(object):
         """
         yaml.dump(self.get_yaml_dict(), yaml_path, **kw)
 
+    def copy(self) -> "Prompts":
+        """
+        Returns a copy of the Prompts object.
+
+        Returns:
+            Prompts: A copy of the Prompts object.
+        """
+        return Prompts(
+            self.system_message,
+            [example.copy() for example in self.in_context_examples],
+        )
+
 
 def from_dict(data: Dict[str, Any]) -> Prompts:
     """

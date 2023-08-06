@@ -105,3 +105,22 @@ def test_get_messages(sample_prompts):
     assert "Paris" in messages[2]["content"]
     assert "Who wrote the play 'Hamlet'?" in messages[2]["content"]
     assert "William Shakespeare" in messages[2]["content"]
+
+
+def test_copy(sample_prompts):
+    prompts = sample_prompts
+    prompts_copy = prompts.copy()
+
+    assert prompts_copy.system_message == prompts.system_message
+    assert len(prompts_copy.in_context_examples) == len(prompts.in_context_examples)
+    for i, example in enumerate(prompts_copy.in_context_examples):
+        assert example.context == prompts.in_context_examples[i].context
+        assert len(example.qa_pairs) == len(prompts.in_context_examples[i].qa_pairs)
+        for j, qa_pair in enumerate(example.qa_pairs):
+            assert (
+                qa_pair.question == prompts.in_context_examples[i].qa_pairs[j].question
+            )
+            assert qa_pair.answer == prompts.in_context_examples[i].qa_pairs[j].answer
+
+    prompts_copy.system_message = "New System Message"
+    assert prompts_copy.system_message != prompts.system_message

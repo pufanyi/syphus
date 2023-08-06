@@ -89,3 +89,27 @@ def test_str(sample_in_context_example):
 
     assert isinstance(example_str, str)
     assert json.loads(example_str) == example.to_dict()
+
+
+def test_copy(sample_in_context_example):
+    example = sample_in_context_example
+    example_copy = example.copy()
+
+    assert isinstance(example_copy, in_context_example.InContextExample)
+    assert example_copy.context == example.context
+    assert len(example_copy.qa_pairs) == len(example.qa_pairs)
+    for new_qa_pair, old_qa_pair in zip(example_copy.qa_pairs, example.qa_pairs):
+        assert new_qa_pair.question == old_qa_pair.question
+        assert new_qa_pair.answer == old_qa_pair.answer
+
+    example_copy.add_qa_pair("What is 2 + 2?", "4")
+    assert len(example_copy.qa_pairs) == 3
+    assert len(example.qa_pairs) == 2
+
+
+def test_remove_last_qa_pair(sample_in_context_example):
+    example = sample_in_context_example
+    example.remove_last_qa_pair()
+    assert len(example.qa_pairs) == 1
+    assert example.qa_pairs[0].question == "What is the capital of France?"
+    assert example.qa_pairs[0].answer == "Paris"

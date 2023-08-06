@@ -60,6 +60,26 @@ class InContextExample(object):
         """
         self.qa_pairs.append(qa_pair.QAPair(question, answer))
 
+    def copy(self) -> "InContextExample":
+        """
+        Returns a copy of the InContextExample object.
+
+        Returns:
+            InContextExample: A copy of the InContextExample object.
+        """
+        return InContextExample(
+            self.context, [qa_pair.copy() for qa_pair in self.qa_pairs]
+        )
+
+    def remove_last_qa_pair(self) -> qa_pair.QAPair:
+        """
+        Removes the last QAPair from the InContextExample.
+
+        Returns:
+            QAPair: The last QAPair in the InContextExample.
+        """
+        return self.qa_pairs.pop()
+
     def get_formatted_qa_pairs(self) -> str:
         """
         Formats the QAPair objects as a human-readable string.
