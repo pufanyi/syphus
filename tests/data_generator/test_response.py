@@ -89,7 +89,11 @@ def test_response_with_missing_answer(capsys):
 
 
 def test_response_with_invalid_role(capsys):
-    response = Response(get_gpt_response("answer: Invalid Role Answer\nquestion: Invalid Role Question", role="user"))
+    response = Response(
+        get_gpt_response(
+            "answer: Invalid Role Answer\nquestion: Invalid Role Question", role="user"
+        )
+    )
     assert len(response.qa_pairs) == 0
     assert "Response is not from assistant" in response.warning_message[0]
     assert "Response is not from assistant" in capsys.readouterr().err
