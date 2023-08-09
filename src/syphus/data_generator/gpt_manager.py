@@ -57,9 +57,7 @@ class GPTManager(object):
                 print(f"Error: {e}")
                 if "have exceeded call rate limit" in str(e):
                     print("Sleeping for 3 seconds")
-                    succuss = True
                     time.sleep(3)
                 else:
-                    succuss = True
-                    response = {"error_message": str(e)}
+                    raise e
         return response
