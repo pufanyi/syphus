@@ -18,7 +18,7 @@ class InContextExample(object):
 
     def __init__(
         self,
-        context: str | Dict[str, Any] | List[Any],
+        context: Any,
         qa_pairs: List[qa_pair.QAPair] = [],
     ):
         self.context = Info(context).content
