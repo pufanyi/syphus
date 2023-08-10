@@ -4,7 +4,9 @@ from syphus import prompts
 from syphus.data_generator.response import Response
 from syphus.prompts.info import Info
 
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Iterable
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
 
 
 class Syphus(object):
@@ -33,12 +35,19 @@ class Syphus(object):
         response = Response(gpt_response)
         return response
 
-    def query_all_infos(self, infos: List[Info]) -> Tuple[List[Response], List[str]]:
-        responses = {}
-        error_messages = {}
-        for info in infos:
-            try:
-                responses[info.id] = self.query_single_info(info)
-            except Exception as e:
-                error_messages[info.id] = str(e)
-        return responses, error_messages
+    def query_single_info_with_error_management(self, info: Info):
+        try:
+            return info.id, self.query_single_info(info), None
+        except Exception as e:
+            return info.id, None, str(e)
+
+    def query_all_infos(
+        self, infos: Iterable[Info], *, num_threads: int = 8
+    ) -> Iterable[Tuple[str, Optional[Response], Optional[str]]]:
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            with tqdm(total=len(infos), desc="Querying GPT") as progress_bar:
+                for id, response, error_message in executor.map(
+                    self.query_single_info_with_error_management, infos
+                ):
+                    progress_bar.update(1)
+                    yield id, response, error_message
