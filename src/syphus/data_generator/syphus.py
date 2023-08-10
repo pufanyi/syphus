@@ -1,8 +1,10 @@
 import syphus.data_generator.gpt_manager as gpt_manager
 
 from syphus import prompts
+from syphus.data_generator.response import Response
+from syphus.data_generator.info import Info
 
-from typing import Optional
+from typing import Optional, List, Tuple
 
 
 class Syphus(object):
@@ -24,9 +26,19 @@ class Syphus(object):
         else:
             raise ValueError("Must provide either prompts yaml path or prompts object")
 
-    def query_gpt(self, info: str):
+    def query_single_info(self, info: Info) -> Response:
         messages = self.prompts.get_messages()
-        messages.append({"role": "user", "content": info})
-        response = self.gpt_manager.query_gpt(messages)
-        # TODO: Parse response
+        messages.append({"role": "user", "content": info.get_info()})
+        gpt_response = self.gpt_manager.query_gpt(messages)
+        response = Response(gpt_response)
         return response
+
+    def query_all_infos(self, infos: List[Info]) -> Tuple[List[Response], List[str]]:
+        responses = {}
+        error_messages = {}
+        for info in infos:
+            try:
+                responses[info.id] = self.query_single_info(info)
+            except Exception as e:
+                error_messages[info.id] = str(e)
+        return responses, error_messages
