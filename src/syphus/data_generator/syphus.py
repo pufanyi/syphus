@@ -35,7 +35,9 @@ class Syphus(object):
         response = Response(gpt_response)
         return response
 
-    def query_single_info_with_error_management(self, info: Info):
+    def query_single_info_with_error_management(
+        self, info: Info
+    ) -> Tuple[str, Optional[Response], Optional[str]]:
         try:
             return info.id, self.query_single_info(info), None
         except Exception as e:
