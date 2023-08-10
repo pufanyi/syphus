@@ -2,7 +2,7 @@ import syphus.data_generator.gpt_manager as gpt_manager
 
 from syphus import prompts
 from syphus.data_generator.response import Response
-from syphus.data_generator.info import Info
+from syphus.prompts.info import Info
 
 from typing import Optional, List, Tuple
 
