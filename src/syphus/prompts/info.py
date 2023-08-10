@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import syphus.utils.yaml as yaml
 import json
@@ -6,13 +6,14 @@ import json
 
 class Info(object):
     def __init__(
-        self, info: Dict[str, Any] | List[Any] | str, *, id: Optional[str] = None
+        self, info: Any, *, id: Optional[str] = None, converting_type: str = "str"
     ):
         self.id = id
-        if type(info) == str:
-            self.content = info
+        if converting_type == "str":
+            self.content = str(info)
+        elif converting_type == "yaml":
+            self.content = yaml.dumps(info)
+        elif converting_type == "json":
+            self.content = json.dumps(info, indent=4)
         else:
-            try:
-                self.content = yaml.dumps(info)
-            except Exception:
-                self.content = json.dumps(info)
+            raise ValueError("Invalid converting type")
