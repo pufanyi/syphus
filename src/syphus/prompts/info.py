@@ -1,19 +1,18 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import syphus.utils.yaml as yaml
 import json
 
 
 class Info(object):
-    def __init__(self, id: str, info: Dict[str, Any] | List[Any] | str):
+    def __init__(
+        self, info: Dict[str, Any] | List[Any] | str, *, id: Optional[str] = None
+    ):
         self.id = id
-        self.info = info
-
-    def get_info(self) -> str:
-        if type(self.info) == str:
-            return self.info
+        if type(info) == str:
+            self.content = info
         else:
             try:
-                return yaml.dumps(self.info)
+                self.content = yaml.dumps(info)
             except Exception:
-                return json.dumps(self.info)
+                self.content = json.dumps(info)

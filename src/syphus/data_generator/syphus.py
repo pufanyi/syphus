@@ -28,7 +28,7 @@ class Syphus(object):
 
     def query_single_info(self, info: Info) -> Response:
         messages = self.prompts.get_messages()
-        messages.append({"role": "user", "content": info.get_info()})
+        messages.append({"role": "user", "content": info.content})
         gpt_response = self.gpt_manager.query_gpt(messages)
         response = Response(gpt_response)
         return response
