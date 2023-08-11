@@ -175,7 +175,7 @@ def save_json(
         response_file_name,
         error_message_file_name,
         full_response_file_name,
-        "json"
+        "json",
     )
     for id, response in responses.items():
         response_dict = response.to_dict()
@@ -219,6 +219,7 @@ def save_jsonl(
     jsonl.dump(error_messages, error_message_path)
     jsonl.dump(responses_dict, response_path)
     jsonl.dump(full_responses, full_response_path)
+
 
 def save_all(responses: Dict[str, Response], path: str, *, format: str = "json"):
     if format == "json":
@@ -282,11 +283,7 @@ def read_all(
         format,
     )
     responses_dict = {}
-    empty_response_dict = {
-        "warning_message": [],
-        "qa_pairs": [],
-        "full_response": {}
-    }
+    empty_response_dict = {"warning_message": [], "qa_pairs": [], "full_response": {}}
     if format == "json":
         with open(error_message_path, "r") as f:
             error_messages = json.load(f)
