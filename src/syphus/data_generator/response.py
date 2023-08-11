@@ -1,27 +1,50 @@
-from typing import Dict, Any, Optional, List, Tuple
+import sys
+import os
+import json
+
+from typing import Dict, Any, Optional, Tuple
 
 import syphus.prompts.qa_pair as qa_pair
 import syphus.utils.yaml as yaml
 import syphus.utils.jsonl as jsonl
 
-import sys
-import os
-import json
+
+def extend_name(name: str, format: str) -> str:
+    if name.endswith(format):
+        return name
+    else:
+        return f"{name}.{format}"
+
+
+def get_file_path_names(
+    path: str,
+    response_file_name: str,
+    error_message_file_name: str,
+    full_response_file_name: str,
+    format: str,
+) -> Tuple[str, str, str]:
+    error_message_path = os.path.join(
+        path, extend_name(error_message_file_name, format)
+    )
+    response_path = os.path.join(path, extend_name(response_file_name, format))
+    full_response_path = os.path.join(
+        path, extend_name(full_response_file_name, format)
+    )
+    return response_path, error_message_path, full_response_path
 
 
 class Response(object):
     def __init__(
         self,
-        gpt_response: Optional[Dict[str, Any]] = None,
         *,
+        gpt_response: Optional[Dict[str, Any]] = None,
         question_header: str = "question: ",
         answer_header: str = "answer: ",
         ignore_capitalization: bool = True,
         data: Optional[Dict[str, Any]] = None,
+        gpt_error_messages: Optional[str] = None,
     ):
-        if gpt_response is None:
-            if data is None:
-                raise ValueError("Either gpt_response or data must be provided.")
+        if data is not None:
             self.full_response = data["full_response"]
             self.warning_message = data["warning_message"]
             self.qa_pairs = [
@@ -29,9 +52,15 @@ class Response(object):
                 for qa_pair_dict in data["qa_pairs"]
             ]
             return
+        elif gpt_response is None and gpt_error_messages is None:
+            raise ValueError("Response is not given.")
+
+        self.warning_message = []
+
+        if gpt_error_messages:
+            self.warning_message.append("GPT error messages: " + gpt_error_messages)
 
         self.full_response = gpt_response
-        self.warning_message = []
         question = None
         answer = None
         message = gpt_response["choices"][0]["message"]["content"]
@@ -100,65 +129,38 @@ class Response(object):
             "full_response": self.full_response,
         }
 
-    def save_json(
+    def save(
         self,
         path: str,
         *,
-        response_file_name: str = "response.json",
-        error_message_file_name: str = "error_message.json",
-        full_response_file_name: str = "gpt_full_response.json",
+        response_file_name: str = "response",
+        error_message_file_name: str = "error_message",
+        full_response_file_name: str = "gpt_full_response",
+        format: str = "json",
     ):
+        if format not in ["json", "yaml"]:
+            raise ValueError("Format must be json or yaml.")
         if not os.path.exists(path):
             os.makedirs(path)
-        error_message_path = os.path.join(path, error_message_file_name)
-        response_path = os.path.join(path, response_file_name)
-        full_response_path = os.path.join(path, full_response_file_name)
-        with open(error_message_path, "w") as f:
-            json.dump(self.warning_message, f, indent=4)
-        with open(response_path, "w") as f:
-            qa_pairs_dict = [qa_pair.to_dict() for qa_pair in self.qa_pairs]
-            json.dump(qa_pairs_dict, f, indent=4)
-        with open(full_response_path, "w") as f:
-            json.dump(self.full_response, f, indent=4)
-
-    def save_yaml(
-        self,
-        path: str,
-        *,
-        response_file_name: str = "response.yaml",
-        error_message_file_name: str = "error_message.yaml",
-        full_response_file_name: str = "gpt_full_response.yaml",
-    ):
-        error_message_path = os.path.join(path, error_message_file_name)
-        response_path = os.path.join(path, response_file_name)
-        full_response_path = os.path.join(path, full_response_file_name)
-        yaml.dump(self.warning_message, error_message_path)
-        yaml.dump([qa_pair.to_dict() for qa_pair in self.qa_pairs], response_path)
-        yaml.dump(self.full_response, full_response_path)
-
-
-def extend_name(name: str, format: str) -> str:
-    if name.endswith(format):
-        return name
-    else:
-        return f"{name}.{format}"
-
-
-def get_file_path_names(
-    path: str,
-    response_file_name: str,
-    error_message_file_name: str,
-    full_response_file_name: str,
-    format: str,
-) -> Tuple[str, str, str]:
-    error_message_path = os.path.join(
-        path, extend_name(error_message_file_name, format)
-    )
-    response_path = os.path.join(path, extend_name(response_file_name, format))
-    full_response_path = os.path.join(
-        path, extend_name(full_response_file_name, format)
-    )
-    return response_path, error_message_path, full_response_path
+        response_path, error_message_path, full_response_path = get_file_path_names(
+            path,
+            response_file_name,
+            error_message_file_name,
+            full_response_file_name,
+            format,
+        )
+        if format == "json":
+            with open(error_message_path, "w") as f:
+                json.dump(self.warning_message, f, indent=4)
+            with open(response_path, "w") as f:
+                qa_pairs_dict = [qa_pair.to_dict() for qa_pair in self.qa_pairs]
+                json.dump(qa_pairs_dict, f, indent=4)
+            with open(full_response_path, "w") as f:
+                json.dump(self.full_response, f, indent=4)
+        elif format == "yaml":
+            yaml.dump(self.warning_message, error_message_path)
+            yaml.dump([qa_pair.to_dict() for qa_pair in self.qa_pairs], response_path)
+            yaml.dump(self.full_response, full_response_path)
 
 
 def save_json(

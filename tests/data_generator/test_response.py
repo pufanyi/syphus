@@ -23,7 +23,9 @@ def get_gpt_response(message: str, role: str = "assistant"):
 
 def test_response_with_valid_input():
     response = Response(
-        get_gpt_response("question: Sample Question\nanswer: Sample Answer\n")
+        gpt_response=get_gpt_response(
+            "question: Sample Question\nanswer: Sample Answer\n"
+        )
     )
     assert len(response.qa_pairs) == 1
     assert response.qa_pairs[0].question == "Sample Question"
@@ -31,7 +33,7 @@ def test_response_with_valid_input():
 
 
 def test_response_with_no_question_and_answer(capsys):
-    response = Response(get_gpt_response("998244353"))
+    response = Response(gpt_response=get_gpt_response("998244353"))
     assert len(response.qa_pairs) == 0
     assert (
         "There is a line which is not a question or answer: 998244353"
@@ -45,7 +47,7 @@ def test_response_with_no_question_and_answer(capsys):
 
 def test_response_with_multiple_qa_pairs_but_partial_valid(capsys):
     response = Response(
-        get_gpt_response(
+        gpt_response=get_gpt_response(
             "anSWEr: Answer 1\nquEstion: Question 1\nansWer: Answer 2\nQUESTION: Question 2"
         )
     )
@@ -58,7 +60,7 @@ def test_response_with_multiple_qa_pairs_but_partial_valid(capsys):
 
 def test_response_with_multiple_qa_pairs_valid(capsys):
     response = Response(
-        get_gpt_response(
+        gpt_response=get_gpt_response(
             "QUESTION: Question 1\nansWEr: Answer 1\nquestioN: Question 2\nanSwer: Answer 2"
         )
     )
@@ -72,7 +74,9 @@ def test_response_with_multiple_qa_pairs_valid(capsys):
 
 
 def test_response_with_missing_question():
-    response = Response(get_gpt_response("answer: Answer without question"))
+    response = Response(
+        gpt_response=get_gpt_response("answer: Answer without question")
+    )
     assert len(response.qa_pairs) == 0
     assert "answer without a question" in response.warning_message[0]
 
@@ -80,7 +84,7 @@ def test_response_with_missing_question():
 def test_response_with_missing_answer(capsys):
     gpt_response = get_gpt_response("question: Question without answer")
 
-    response = Response(gpt_response)
+    response = Response(gpt_response=gpt_response)
     assert len(response.qa_pairs) == 0
     assert "There is a question without an answer" in response.warning_message[0]
     assert "There is a question without an answer" in capsys.readouterr().err
@@ -88,7 +92,7 @@ def test_response_with_missing_answer(capsys):
 
 def test_response_with_invalid_role(capsys):
     response = Response(
-        get_gpt_response(
+        gpt_response=get_gpt_response(
             "answer: Invalid Role Answer\nquestion: Invalid Role Question", role="user"
         )
     )
