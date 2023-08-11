@@ -4,7 +4,7 @@ from syphus import prompts
 from syphus.data_generator.response import Response
 from syphus.prompts.info import Info
 
-from typing import Optional, List, Tuple, Iterable
+from typing import Optional, Tuple, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 

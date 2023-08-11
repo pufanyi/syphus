@@ -1,7 +1,5 @@
 from syphus.data_generator.response import Response
 
-import pytest
-
 
 def get_gpt_response(message: str, role: str = "assistant"):
     return {
