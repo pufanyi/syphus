@@ -108,6 +108,8 @@ class Response(object):
         error_message_file_name: str = "error_message.json",
         full_response_file_name: str = "gpt_full_response.json",
     ):
+        if not os.path.exists(path):
+            os.makedirs(path)
         error_message_path = os.path.join(path, error_message_file_name)
         response_path = os.path.join(path, response_file_name)
         full_response_path = os.path.join(path, full_response_file_name)
@@ -167,6 +169,8 @@ def save_json(
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
 ):
+    if not os.path.exists(path):
+        os.makedirs(path)
     responses_dict = {}
     error_messages = {}
     full_responses = {}
@@ -198,6 +202,8 @@ def save_jsonl(
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
 ):
+    if not os.path.exists(path):
+        os.makedirs(path)
     response_path, error_message_path, full_response_path = get_file_path_names(
         path,
         response_file_name,
@@ -343,5 +349,27 @@ def merge(
     output_response_file_name: str = "responses",
     output_error_message_file_name: str = "error_messages",
     output_full_response_file_name: str = "gpt_full_responses",
-):
-    pass
+) -> Dict[str, Response]:
+    responses = {}
+    responses_ids = os.listdir(input_path)
+    for id in responses_ids:
+        try:
+            response = read_single(
+                os.path.join(input_path, id),
+                response_file_name=input_response_file_name,
+                error_message_file_name=input_error_message_file_name,
+                full_response_file_name=input_full_response_file_name,
+                format=input_format,
+            )
+            responses[id] = response
+        except FileNotFoundError:
+            print(f"File not found for {id}")
+    save_all(
+        responses,
+        output_path,
+        format=output_format,
+        response_file_name=output_response_file_name,
+        error_message_file_name=output_error_message_file_name,
+        full_response_file_name=output_full_response_file_name,
+    )
+    return responses
