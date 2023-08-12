@@ -191,3 +191,128 @@ def test_init_response_with_dict():
     assert [qa_pair.to_dict() for qa_pair in response.qa_pairs] == response_dict[
         "qa_pairs"
     ]
+
+
+def test_init_response_with_question_without_answer(capsys):
+    response = Response(
+        gpt_response=get_gpt_response(
+            message="""
+            question: Question without answer
+            question: question2
+            answer: answer2
+            """
+        )
+    )
+    assert len(response.qa_pairs) == 1
+    assert response.qa_pairs[0].question == "question2"
+    assert response.qa_pairs[0].answer == "answer2"
+    assert len(response.warning_message) == 1
+    assert "There is a question without an answer" in response.warning_message[0]
+    assert "There is a question without an answer" in capsys.readouterr().err
+
+
+def test_init_response_with_multiple_lines_qa(capsys):
+    response = Response(
+        gpt_response=get_gpt_response(
+            message="""
+            question: Question 1 line 1\nQuestion 1 line 2\nQuestion 1 line 3
+            answer: Answer 1 line 1\nAnswer 1 line 2\nAnswer 1 line 3
+            question: Question 2 line 1\nQuestion 2 line 2\nQuestion 2 line 3
+            answer: Answer 2 line 1\nAnswer 2 line 2\nAnswer 2 line 3
+            """
+        )
+    )
+    assert len(response.qa_pairs) == 2
+    assert (
+        response.qa_pairs[0].question
+        == "Question 1 line 1\nQuestion 1 line 2\nQuestion 1 line 3"
+    )
+    assert (
+        response.qa_pairs[0].answer
+        == "Answer 1 line 1\nAnswer 1 line 2\nAnswer 1 line 3"
+    )
+    assert (
+        response.qa_pairs[1].question
+        == "Question 2 line 1\nQuestion 2 line 2\nQuestion 2 line 3"
+    )
+    assert (
+        response.qa_pairs[1].answer
+        == "Answer 2 line 1\nAnswer 2 line 2\nAnswer 2 line 3"
+    )
+    assert capsys.readouterr().err == ""
+    assert len(response.warning_message) == 0
+
+
+def test_to_dict():
+    full_response = get_gpt_response(
+        message="""
+        question: Sample Question 1
+        answer: Sample Answer 1
+
+        question: Sample Question 2
+        answer: Sample Answer 2
+
+        question: Sample Question 3
+        """
+    )
+
+    response = Response(gpt_response=full_response)
+    qa_pairs = [
+        {"question": "Sample Question 1", "answer": "Sample Answer 1"},
+        {"question": "Sample Question 2", "answer": "Sample Answer 2"},
+    ]
+    assert response.to_dict() == {
+        "full_response": full_response,
+        "warning_message": response.warning_message,
+        "qa_pairs": qa_pairs,
+    }
+
+
+@pytest.fixture
+def sample_response():
+    return Response(
+        gpt_response=get_gpt_response(
+            message="""
+            question: Sample Question 1
+            answer: Sample Answer 1
+
+            question: Sample Question 2
+            answer: Sample Answer 2
+
+            question: Sample Question 3
+            """
+        )
+    )
+
+
+@pytest.fixture
+def sample_response_output_path():
+    return "tests/test_output/response"
+
+
+def test_save_single_response_json(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "single_json")
+    sample_response.save(path)
+    assert os.path.exists(path)
+    assert os.path.exists(os.path.join(path, "response.json"))
+    assert os.path.exists(os.path.join(path, "error_message.json"))
+    assert os.path.exists(os.path.join(path, "gpt_full_response.json"))
+    loaded_sample_response = syphus_response.read_single(path)
+    assert sample_response.to_dict() == loaded_sample_response.to_dict()
+
+
+def test_save_single_response_yaml(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "single_yaml")
+    sample_response.save(path, format="yaml")
+    assert os.path.exists(path)
+    assert os.path.exists(os.path.join(path, "response.yaml"))
+    assert os.path.exists(os.path.join(path, "error_message.yaml"))
+    assert os.path.exists(os.path.join(path, "gpt_full_response.yaml"))
+    loaded_sample_response = syphus_response.read_single(path, format="yaml")
+    assert sample_response.to_dict() == loaded_sample_response.to_dict()
+
+
+def test_save_single_response_other_type(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "jsonl")
+    with pytest.raises(ValueError):
+        sample_response.save(path, format="other")

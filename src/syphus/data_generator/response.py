@@ -90,7 +90,7 @@ class Response(object):
                     answer = None
                 if question:
                     self.warning_message.append(
-                        "There is a question without an answer: ", line
+                        "There is a question without an answer: " + line
                     )
                 question = line[len(question_header) :].strip()
                 last = "question"
