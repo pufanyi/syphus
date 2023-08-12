@@ -13,6 +13,15 @@ from syphus.prompts.info import Info
 
 
 class Syphus(object):
+    """
+    A class for managing interactions with the OpenAI GPT-3 engine and querying prompts for responses.
+
+    Attributes:
+        gpt_manager (gpt_manager.GPTManager): An instance of GPTManager for managing GPT-3 interactions.
+        prompts (prompts.Prompts): An instance of Prompts containing conversation prompts and messages.
+
+    """
+
     def __init__(
         self,
         *,
@@ -21,6 +30,16 @@ class Syphus(object):
         gpt_params: Optional[gpt_manager.GPTParamsSettings] = None,
         prompts: prompts.Prompts | str,
     ):
+        """
+        Initialize the Syphus instance.
+
+        Args:
+            gpt_info_path (str, optional): Path to a YAML file containing OpenAI API and GPT parameters settings.
+            openai_api (gpt_manager.OpenAISettings, optional): An instance of OpenAISettings containing OpenAI API settings.
+            gpt_params (gpt_manager.GPTParamsSettings, optional): An instance of GPTParamsSettings containing GPT-3 parameters settings.
+            prompts (prompts.Prompts | str): Either an instance of Prompts or a path to a YAML file containing conversation prompts and messages.
+
+        """
         self.gpt_manager = gpt_manager.GPTManager(
             gpt_info_path=gpt_info_path, openai_api=openai_api, gpt_params=gpt_params
         )
@@ -32,6 +51,16 @@ class Syphus(object):
             raise ValueError("Must provide either prompts yaml path or prompts object")
 
     def query_single_info(self, info: Info) -> Response:
+        """
+        Generate a response from the GPT-3 engine based on the provided Info object.
+
+        Args:
+            info (Info): An instance of Info containing information for generating the response.
+
+        Returns:
+            Response: An instance of Response containing the generated response or error messages.
+
+        """
         messages = self.prompts.get_messages()
         messages.append({"role": "user", "content": info.content})
         try:
@@ -44,6 +73,17 @@ class Syphus(object):
     def query_all_infos(
         self, infos: Iterable[Info], *, num_threads: int = 8
     ) -> Iterable[Tuple[str, Optional[Response], Optional[str]]]:
+        """
+        Generate responses for multiple Info objects using multiple threads.
+
+        Args:
+            infos (Iterable[Info]): An iterable containing Info objects to generate responses for.
+            num_threads (int, optional): Number of threads to use for concurrent response generation.
+
+        Yields:
+            Tuple[str, Optional[Response], Optional[str]]: A tuple containing the Info ID, response, and error message (if any).
+
+        """
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             with tqdm(total=len(infos), desc="Querying GPT") as progress_bar:
                 for id, response in executor.map(
@@ -64,6 +104,23 @@ class Syphus(object):
         full_response_file_name: str = "gpt_full_responses",
         output_type: str = "split",
     ):
+        """
+        Generate responses for multiple Info objects, save them to files, and manage different output formats.
+
+        Args:
+            infos (Iterable[Info]): An iterable containing Info objects to generate responses for.
+            path (str): Path to the directory where the response files will be saved.
+            num_threads (int, optional): Number of threads to use for concurrent response generation.
+            format (str, optional): Output file format (json, yaml, or jsonl).
+            response_file_name (str, optional): Name of the response file.
+            error_message_file_name (str, optional): Name of the error message file.
+            full_response_file_name (str, optional): Name of the full response file.
+            output_type (str, optional): Type of output organization (split or combined).
+
+        Raises:
+            ValueError: If an invalid output type or format is provided.
+
+        """
         if output_type not in ["split", "combined"]:
             raise ValueError("Invalid output type")
         if format not in ["json", "yaml", "jsonl"]:
