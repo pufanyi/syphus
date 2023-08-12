@@ -3,6 +3,7 @@ import os
 import json
 
 from typing import Dict, Any, Optional, Tuple
+from tqdm import tqdm
 
 import syphus.prompts.qa_pair as qa_pair
 import syphus.utils.yaml as yaml
@@ -170,6 +171,7 @@ def save_json(
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
+    process_bar: bool = True,
 ):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -183,7 +185,10 @@ def save_json(
         full_response_file_name,
         "json",
     )
-    for id, response in responses.items():
+    items = responses.items()
+    if process_bar:
+        items = tqdm(items, unit="response", desc="Saving responses")
+    for id, response in items:
         response_dict = response.to_dict()
         responses_dict[id] = response_dict["qa_pairs"]
         error_messages[id] = response_dict["warning_message"]
@@ -203,6 +208,7 @@ def save_jsonl(
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
+    process_bar: bool = True,
 ):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -216,7 +222,10 @@ def save_jsonl(
     responses_dict = []
     error_messages = []
     full_responses = []
-    for id, response in responses.items():
+    items = responses.items()
+    if process_bar:
+        items = tqdm(items, unit="response", desc="Saving responses")
+    for id, response in items:
         response_dict = response.to_dict()
         response_dict["qa_pairs"]["id"] = id
         response_dict["warning_message"]["id"] = id
@@ -229,11 +238,34 @@ def save_jsonl(
     jsonl.dump(full_responses, full_response_path)
 
 
-def save_all(responses: Dict[str, Response], path: str, *, format: str = "json"):
+def save_all(
+    responses: Dict[str, Response],
+    path: str,
+    *,
+    format: str = "json",
+    response_file_name: str = "responses",
+    error_message_file_name: str = "error_messages",
+    full_response_file_name: str = "gpt_full_responses",
+    process_bar: bool = True,
+):
     if format == "json":
-        save_json(responses, path)
+        save_json(
+            responses,
+            path,
+            response_file_name=response_file_name,
+            error_message_file_name=error_message_file_name,
+            full_response_file_name=full_response_file_name,
+            process_bar=process_bar,
+        )
     elif format == "jsonl":
-        save_jsonl(responses, path)
+        save_jsonl(
+            responses,
+            path,
+            response_file_name=response_file_name,
+            error_message_file_name=error_message_file_name,
+            full_response_file_name=full_response_file_name,
+            process_bar=process_bar,
+        )
     else:
         raise ValueError("format must be json, jsonl, or yaml")
 
@@ -351,9 +383,15 @@ def merge(
     output_response_file_name: str = "responses",
     output_error_message_file_name: str = "error_messages",
     output_full_response_file_name: str = "gpt_full_responses",
+    process_bar: bool = True,
 ) -> Dict[str, Response]:
     responses = {}
-    responses_ids = os.listdir(input_path)
+    if process_bar:
+        responses_ids = tqdm(
+            os.listdir(input_path), desc="Loading responses", unit="files"
+        )
+    else:
+        responses_ids = os.listdir(input_path)
     for id in responses_ids:
         try:
             response = read_single(
@@ -373,5 +411,6 @@ def merge(
         response_file_name=output_response_file_name,
         error_message_file_name=output_error_message_file_name,
         full_response_file_name=output_full_response_file_name,
+        process_bar=process_bar,
     )
     return responses
