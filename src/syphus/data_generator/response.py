@@ -49,25 +49,28 @@ class Response(object):
             self.full_response = data["full_response"]
             self.warning_message = data["warning_message"]
             self.qa_pairs = [
-                qa_pair.QAPair.from_dict(qa_pair_dict)
-                for qa_pair_dict in data["qa_pairs"]
+                qa_pair.from_dict(qa_pair_dict) for qa_pair_dict in data["qa_pairs"]
             ]
             return
         elif gpt_response is None and gpt_error_messages is None:
             raise ValueError("Response is not given.")
 
-        self.warning_message = []
-
         if gpt_error_messages:
-            self.warning_message.append("GPT error messages: " + gpt_error_messages)
+            self.warning_message = ["GPT error messages: " + gpt_error_messages]
+            self.qa_pairs = []
+            self.full_response = {
+                "error": gpt_error_messages,
+            }
+            return
 
+        self.warning_message = []
+        self.qa_pairs = []
         self.full_response = gpt_response
         question = None
         answer = None
         message = gpt_response["choices"][0]["message"]["content"]
         if gpt_response["choices"][0]["message"]["role"] != "assistant":
             self.warning_message.append("Response is not from assistant.")
-        self.qa_pairs = []
         last = None
 
         def check_start_with(line, prefix) -> bool:

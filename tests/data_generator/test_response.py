@@ -3,6 +3,7 @@ import syphus.data_generator.response as syphus_response
 from syphus.data_generator.response import Response
 
 import os
+import pytest
 
 
 def get_gpt_response(message: str, role: str = "assistant"):
@@ -131,3 +132,43 @@ def test_get_file_path_names():
     for i in range(len(answer)):
         assert os.path.samefile(answer1[i], answer[i])
         assert os.path.samefile(answer2[i], answer[i])
+
+
+def test_init_response_with_gpt_error_message():
+    response = Response(
+        gpt_error_messages="test_error_message",
+    )
+    assert len(response.warning_message) == 1
+    assert "test_error_message" in response.warning_message[0]
+    assert "error" in response.full_response
+    assert response.qa_pairs == []
+
+
+def test_init_response_with_all_None():
+    with pytest.raises(ValueError):
+        Response()
+
+
+def test_init_response_with_dict():
+    response_dict = {
+        "full_response": get_gpt_response(
+            message="""
+                question1: Sample Question 1
+                answer1: Sample Answer 1
+
+                question2: Sample Question 2
+                answer2: Sample Answer 2
+                """
+        ),
+        "warning_message": ["test_warning_message"],
+        "qa_pairs": [
+            {"question": "Sample Question 1", "answer": "Sample Answer 1"},
+            {"question": "Sample Question 2", "answer": "Sample Answer 2"},
+        ],
+    }
+    response = Response(data=response_dict)
+    assert response.full_response == response_dict["full_response"]
+    assert response.warning_message == response_dict["warning_message"]
+    assert [qa_pair.to_dict() for qa_pair in response.qa_pairs] == response_dict[
+        "qa_pairs"
+    ]
