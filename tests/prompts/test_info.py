@@ -65,3 +65,8 @@ def test_info_json(info_dict: Dict[str, Any], info_list: List[Any]):
     assert json.loads(info.content) == info_dict
     info = Info(info_list, converting_type="json")
     assert json.loads(info.content) == info_list
+
+
+def test_info_invalid_converting_type(info_dict: Dict[str, Any]):
+    with pytest.raises(ValueError):
+        Info(info_dict, converting_type="invalid converting type")
