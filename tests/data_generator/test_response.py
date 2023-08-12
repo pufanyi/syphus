@@ -294,9 +294,9 @@ def test_save_single_response_json(sample_response, sample_response_output_path)
     path = os.path.join(sample_response_output_path, "single_json")
     sample_response.save(path)
     assert os.path.exists(path)
-    assert os.path.exists(os.path.join(path, "response.json"))
-    assert os.path.exists(os.path.join(path, "error_message.json"))
-    assert os.path.exists(os.path.join(path, "gpt_full_response.json"))
+    assert os.path.exists(os.path.join(path, "responses.json"))
+    assert os.path.exists(os.path.join(path, "error_messages.json"))
+    assert os.path.exists(os.path.join(path, "gpt_full_responses.json"))
     loaded_sample_response = syphus_response.read_single(path)
     assert sample_response.to_dict() == loaded_sample_response.to_dict()
 
@@ -305,9 +305,9 @@ def test_save_single_response_yaml(sample_response, sample_response_output_path)
     path = os.path.join(sample_response_output_path, "single_yaml")
     sample_response.save(path, format="yaml")
     assert os.path.exists(path)
-    assert os.path.exists(os.path.join(path, "response.yaml"))
-    assert os.path.exists(os.path.join(path, "error_message.yaml"))
-    assert os.path.exists(os.path.join(path, "gpt_full_response.yaml"))
+    assert os.path.exists(os.path.join(path, "responses.yaml"))
+    assert os.path.exists(os.path.join(path, "error_messages.yaml"))
+    assert os.path.exists(os.path.join(path, "gpt_full_responses.yaml"))
     loaded_sample_response = syphus_response.read_single(path, format="yaml")
     assert sample_response.to_dict() == loaded_sample_response.to_dict()
 
@@ -316,3 +316,136 @@ def test_save_single_response_other_type(sample_response, sample_response_output
     path = os.path.join(sample_response_output_path, "jsonl")
     with pytest.raises(ValueError):
         sample_response.save(path, format="other")
+
+
+def test_save_all_json(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "all_json")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    syphus_response.save_all(all_responses, path)
+    assert os.path.exists(path)
+    assert os.path.exists(os.path.join(path, "responses.json"))
+    assert os.path.exists(os.path.join(path, "error_messages.json"))
+    assert os.path.exists(os.path.join(path, "gpt_full_responses.json"))
+    loaded_sample_responses = syphus_response.read_all(path)
+    assert (
+        all_responses["00001"].to_dict() == loaded_sample_responses["00001"].to_dict()
+    )
+    assert (
+        all_responses["00002"].to_dict() == loaded_sample_responses["00002"].to_dict()
+    )
+    assert (
+        all_responses["00003"].to_dict() == loaded_sample_responses["00003"].to_dict()
+    )
+
+
+def test_save_all_jsonl(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "all_jsonl")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    syphus_response.save_all(all_responses, path, format="jsonl")
+    assert os.path.exists(path)
+    assert os.path.exists(os.path.join(path, "responses.jsonl"))
+    assert os.path.exists(os.path.join(path, "error_messages.jsonl"))
+    assert os.path.exists(os.path.join(path, "gpt_full_responses.jsonl"))
+    loaded_sample_responses = syphus_response.read_all(path, format="jsonl")
+    assert (
+        all_responses["00001"].to_dict() == loaded_sample_responses["00001"].to_dict()
+    )
+    assert (
+        all_responses["00002"].to_dict() == loaded_sample_responses["00002"].to_dict()
+    )
+    assert (
+        all_responses["00003"].to_dict() == loaded_sample_responses["00003"].to_dict()
+    )
+
+
+def test_split(sample_response, sample_response_output_path, capsys):
+    path = os.path.join(sample_response_output_path, "all_split")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    with pytest.raises(ValueError):
+        syphus_response.save_all(all_responses, path, split=True, format="jsonl")
+    syphus_response.save_all(all_responses, path, split=True)
+    assert "Saving responses" in capsys.readouterr().err
+    assert os.path.exists(path)
+    loaded_response = syphus_response.read_single(os.path.join(path, "00001"))
+    assert sample_response.to_dict() == loaded_response.to_dict()
+    loaded_response = syphus_response.read_all(path, split=True, process_bar=True)
+    assert "Loading responses" in capsys.readouterr().err
+    assert (
+        all_responses["00001"].to_dict() == loaded_response["00001"].to_dict()
+        and all_responses["00002"].to_dict() == loaded_response["00002"].to_dict()
+        and all_responses["00003"].to_dict() == loaded_response["00003"].to_dict()
+    )
+    os.makedirs(os.path.join(path, "00004"))
+    with open(os.path.join(path, "00004", "responses.json"), "w") as f:
+        f.write('["test"]')
+    loaded_response = syphus_response.read_all(path, split=True)
+    assert "File not found for 00004" in capsys.readouterr().err
+
+
+def test_save_all_other_format(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "yaml")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    with pytest.raises(ValueError):
+        syphus_response.save_all(all_responses, path, format="yaml")
+
+
+def test_read_single_other_format(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "jsonl")
+    with pytest.raises(ValueError):
+        sample_response.save(path, format="jsonl")
+    with pytest.raises(ValueError):
+        syphus_response.read_single(path, format="jsonl")
+
+
+def test_read_all_close_process_bar(
+    sample_response, sample_response_output_path, capsys
+):
+    path = os.path.join(sample_response_output_path, "all_json_close_process_bar")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    syphus_response.save_all(all_responses, path, format="json", process_bar=False)
+    syphus_response.read_all(path, process_bar=True)
+    err_message = capsys.readouterr().err
+    assert (
+        "process_bar is only available when split is True" in err_message
+        and "process_bar is set to False" in err_message
+    )
+
+
+def test_merge(sample_response, sample_response_output_path):
+    path = os.path.join(sample_response_output_path, "test_merge")
+    all_responses = {
+        "00001": sample_response,
+        "00002": sample_response,
+        "00003": sample_response,
+    }
+    split_path = os.path.join(path, "split")
+    syphus_response.save_all(all_responses, split_path, split=True)
+    merged_path = os.path.join(path, "merged")
+    syphus_response.merge(split_path, merged_path)
+    merged_responses = syphus_response.read_all(merged_path)
+    assert len(all_responses) == len(merged_responses)
+    assert (
+        all_responses["00001"].to_dict() == merged_responses["00001"].to_dict()
+        and all_responses["00002"].to_dict() == merged_responses["00002"].to_dict()
+        and all_responses["00003"].to_dict() == merged_responses["00003"].to_dict()
+    )

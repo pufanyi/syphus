@@ -90,7 +90,7 @@ class Response(object):
                     answer = None
                 if question:
                     self.warning_message.append(
-                        "There is a question without an answer: " + line
+                        "There is a question without an answer: " + question
                     )
                 question = line[len(question_header) :].strip()
                 last = "question"
@@ -118,13 +118,13 @@ class Response(object):
         if len(self.qa_pairs) == 0:
             if question:
                 self.warning_message.append(
-                    "There is a question without an answer: " + line
+                    "There is a question without an answer: " + question
                 )
             else:
                 self.warning_message.append("There is no question and answer pair.")
         if question:
             self.warning_message.append(
-                "There is a question without an answer: " + line
+                "There is a question without an answer: " + question
             )
         if self.warning_message:
             for warning in self.warning_message:
@@ -141,9 +141,9 @@ class Response(object):
         self,
         path: str,
         *,
-        response_file_name: str = "response",
-        error_message_file_name: str = "error_message",
-        full_response_file_name: str = "gpt_full_response",
+        response_file_name: str = "responses",
+        error_message_file_name: str = "error_messages",
+        full_response_file_name: str = "gpt_full_responses",
         format: str = "json",
     ):
         if format not in ["json", "yaml"]:
@@ -234,9 +234,18 @@ def save_jsonl(
         items = tqdm(items, unit="response", desc="Saving responses")
     for id, response in items:
         response_dict = response.to_dict()
-        response_dict["qa_pairs"]["id"] = id
-        response_dict["warning_message"]["id"] = id
-        response_dict["full_response"]["id"] = id
+        response_dict["qa_pairs"] = {
+            "id": id,
+            "content": response_dict["qa_pairs"],
+        }
+        response_dict["warning_message"] = {
+            "id": id,
+            "content": response_dict["warning_message"],
+        }
+        response_dict["full_response"] = {
+            "id": id,
+            "content": response_dict["full_response"],
+        }
         responses_dict.append(response_dict["qa_pairs"])
         error_messages.append(response_dict["warning_message"])
         full_responses.append(response_dict["full_response"])
@@ -254,35 +263,55 @@ def save_all(
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
     process_bar: bool = True,
+    split: bool = False,
 ):
-    if format == "json":
-        save_json(
-            responses,
-            path,
-            response_file_name=response_file_name,
-            error_message_file_name=error_message_file_name,
-            full_response_file_name=full_response_file_name,
-            process_bar=process_bar,
-        )
-    elif format == "jsonl":
-        save_jsonl(
-            responses,
-            path,
-            response_file_name=response_file_name,
-            error_message_file_name=error_message_file_name,
-            full_response_file_name=full_response_file_name,
-            process_bar=process_bar,
-        )
+    if split:
+        if format not in ["json", "yaml"]:
+            raise ValueError("Format must be json or yaml.")
+        if not os.path.exists(path):
+            os.makedirs(path)
+        items = responses.items()
+        if process_bar:
+            items = tqdm(items, unit="response", desc="Saving responses")
+        for id, response in items:
+            now_path = os.path.join(path, id)
+            os.makedirs(now_path)
+            response.save(
+                now_path,
+                response_file_name=response_file_name,
+                error_message_file_name=error_message_file_name,
+                full_response_file_name=full_response_file_name,
+                format=format,
+            )
     else:
-        raise ValueError("format must be json, jsonl, or yaml")
+        if format == "json":
+            save_json(
+                responses,
+                path,
+                response_file_name=response_file_name,
+                error_message_file_name=error_message_file_name,
+                full_response_file_name=full_response_file_name,
+                process_bar=process_bar,
+            )
+        elif format == "jsonl":
+            save_jsonl(
+                responses,
+                path,
+                response_file_name=response_file_name,
+                error_message_file_name=error_message_file_name,
+                full_response_file_name=full_response_file_name,
+                process_bar=process_bar,
+            )
+        else:
+            raise ValueError("format must be json or jsonl")
 
 
 def read_single(
     path: str,
     *,
-    response_file_name: str = "response",
-    error_message_file_name: str = "error_message",
-    full_response_file_name: str = "gpt_full_response",
+    response_file_name: str = "responses",
+    error_message_file_name: str = "error_messages",
+    full_response_file_name: str = "gpt_full_responses",
     format="json",
 ) -> Response:
     if format not in ["json", "yaml"]:
@@ -321,7 +350,14 @@ def read_all(
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
     format: str = "json",
+    split: bool = False,
+    process_bar: bool = False,
 ) -> Dict[str, Response]:
+    if split is False and process_bar is True:
+        print("process_bar is only available when split is True", file=sys.stderr)
+        print("process_bar is set to False", file=sys.stderr)
+        process_bar = False
+
     response_path, error_message_path, full_response_path = get_file_path_names(
         path,
         response_file_name,
@@ -329,53 +365,74 @@ def read_all(
         full_response_file_name,
         format,
     )
-    responses_dict = {}
-    empty_response_dict = {"warning_message": [], "qa_pairs": [], "full_response": {}}
-    if format == "json":
-        with open(error_message_path, "r") as f:
-            error_messages = json.load(f)
-        with open(response_path, "r") as f:
-            qa_pairs = json.load(f)
-        with open(full_response_path, "r") as f:
-            full_responses = json.load(f)
-        for id, error_messages in error_messages.items():
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["warning_message"] = error_messages
-        for id, qa_pairs in qa_pairs.items():
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["qa_pairs"] = qa_pairs
-        for id, full_responses in full_responses.items():
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["full_response"] = full_responses
-    elif format == "jsonl":
-        error_messages = jsonl.load(error_message_path)
-        qa_pairs = jsonl.load(response_path)
-        full_responses = jsonl.load(full_response_path)
-        for error_message in error_messages:
-            id = error_message["id"]
-            error_message.pop("id")
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["warning_message"] = error_message
-        for qa_pair in qa_pairs:
-            id = qa_pair["id"]
-            qa_pair.pop("id")
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["qa_pairs"] = qa_pair
-        for full_response in full_responses:
-            id = full_response["id"]
-            full_response.pop("id")
-            if id not in responses_dict:
-                responses_dict[id] = empty_response_dict.copy()
-            responses_dict[id]["full_response"] = full_response
-    responses = {}
-    for id, response_dict in responses_dict.items():
-        responses[id] = Response(data=response_dict)
-    return responses
+
+    if split:
+        responses = {}
+        responses_ids = os.listdir(path)
+        if process_bar:
+            responses_ids = tqdm(responses_ids, desc="Loading responses", unit="files")
+        for id in responses_ids:
+            try:
+                response = read_single(
+                    os.path.join(path, id),
+                    response_file_name=response_file_name,
+                    error_message_file_name=error_message_file_name,
+                    full_response_file_name=full_response_file_name,
+                    format=format,
+                )
+                responses[id] = response
+            except FileNotFoundError:
+                print(f"File not found for {id}", file=sys.stderr)
+        return responses
+    else:
+        responses_dict = {}
+        empty_response_dict = {
+            "warning_message": [],
+            "qa_pairs": [],
+            "full_response": {},
+        }
+        if format == "json":
+            with open(error_message_path, "r") as f:
+                error_messages = json.load(f)
+            with open(response_path, "r") as f:
+                qa_pairs = json.load(f)
+            with open(full_response_path, "r") as f:
+                full_responses = json.load(f)
+            for id, error_messages in error_messages.items():
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["warning_message"] = error_messages
+            for id, qa_pairs in qa_pairs.items():
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["qa_pairs"] = qa_pairs
+            for id, full_responses in full_responses.items():
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["full_response"] = full_responses
+        elif format == "jsonl":
+            error_messages = jsonl.load(error_message_path)
+            qa_pairs = jsonl.load(response_path)
+            full_responses = jsonl.load(full_response_path)
+            for error_message in error_messages:
+                id = error_message["id"]
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["warning_message"] = error_message["content"]
+            for qa_pair in qa_pairs:
+                id = qa_pair["id"]
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["qa_pairs"] = qa_pair["content"]
+            for full_response in full_responses:
+                id = full_response["id"]
+                if id not in responses_dict:
+                    responses_dict[id] = empty_response_dict.copy()
+                responses_dict[id]["full_response"] = full_response["content"]
+        responses = {}
+        for id, response_dict in responses_dict.items():
+            responses[id] = Response(data=response_dict)
+        return responses
 
 
 def merge(
@@ -383,34 +440,24 @@ def merge(
     output_path: str,
     *,
     input_format: str = "json",
-    input_response_file_name: str = "response",
-    input_error_message_file_name: str = "error_message",
-    input_full_response_file_name: str = "gpt_full_response",
+    input_response_file_name: str = "responses",
+    input_error_message_file_name: str = "error_messages",
+    input_full_response_file_name: str = "gpt_full_responses",
     output_format: str = "json",
     output_response_file_name: str = "responses",
     output_error_message_file_name: str = "error_messages",
     output_full_response_file_name: str = "gpt_full_responses",
     process_bar: bool = True,
 ) -> Dict[str, Response]:
-    responses = {}
-    if process_bar:
-        responses_ids = tqdm(
-            os.listdir(input_path), desc="Loading responses", unit="files"
-        )
-    else:
-        responses_ids = os.listdir(input_path)
-    for id in responses_ids:
-        try:
-            response = read_single(
-                os.path.join(input_path, id),
-                response_file_name=input_response_file_name,
-                error_message_file_name=input_error_message_file_name,
-                full_response_file_name=input_full_response_file_name,
-                format=input_format,
-            )
-            responses[id] = response
-        except FileNotFoundError:
-            print(f"File not found for {id}")
+    responses = read_all(
+        input_path,
+        response_file_name=input_response_file_name,
+        error_message_file_name=input_error_message_file_name,
+        full_response_file_name=input_full_response_file_name,
+        format=input_format,
+        split=True,
+        process_bar=process_bar,
+    )
     save_all(
         responses,
         output_path,
