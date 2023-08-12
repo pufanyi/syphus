@@ -1,4 +1,8 @@
+import syphus.data_generator.response as syphus_response
+
 from syphus.data_generator.response import Response
+
+import os
 
 
 def get_gpt_response(message: str, role: str = "assistant"):
@@ -99,3 +103,31 @@ def test_response_with_invalid_role(capsys):
     assert len(response.qa_pairs) == 0
     assert "Response is not from assistant" in response.warning_message[0]
     assert "Response is not from assistant" in capsys.readouterr().err
+
+
+def test_extend_name():
+    assert syphus_response.extend_name("test.json", "json") == "test.json"
+    assert syphus_response.extend_name("test", "json") == "test.json"
+    assert syphus_response.extend_name("test", "yaml") == "test.yaml"
+    assert syphus_response.extend_name("test", "yml") == "test.yml"
+
+
+def test_get_file_path_names():
+    path = "tests/data_generator/../data/./test_path"
+    names = {
+        "response_file_name": "response_file_name",
+        "error_message_file_name": "error_message_file_name",
+        "full_response_file_name": "full_response_file_name",
+        "format": "jsonl",
+    }
+    answer = (
+        "tests/data/test_path/response_file_name.jsonl",
+        "tests/data/test_path/error_message_file_name.jsonl",
+        "tests/data/test_path/full_response_file_name.jsonl",
+    )
+    answer1 = syphus_response.get_file_path_names(path, **names)
+    answer2 = syphus_response.get_file_path_names(path + "/", **names)
+    assert len(answer1) == len(answer) and len(answer2) == len(answer)
+    for i in range(len(answer)):
+        assert os.path.samefile(answer1[i], answer[i])
+        assert os.path.samefile(answer2[i], answer[i])
