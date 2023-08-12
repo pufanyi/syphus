@@ -84,6 +84,10 @@ class Response(object):
             if line == "":
                 continue
             if check_start_with(line, question_header):
+                if question and answer:
+                    self.qa_pairs.append(qa_pair.QAPair(question, answer))
+                    question = None
+                    answer = None
                 if question:
                     self.warning_message.append(
                         "There is a question without an answer: ", line
@@ -107,10 +111,10 @@ class Response(object):
                     self.warning_message.append(
                         "There is a line which is not a question or answer: " + line
                     )
-            if question and answer:
-                self.qa_pairs.append(qa_pair.QAPair(question, answer))
-                question = None
-                answer = None
+        if question and answer:
+            self.qa_pairs.append(qa_pair.QAPair(question, answer))
+            question = None
+            answer = None
         if len(self.qa_pairs) == 0:
             if question:
                 self.warning_message.append(

@@ -78,6 +78,25 @@ def test_response_with_multiple_qa_pairs_valid(capsys):
     assert capsys.readouterr().err == ""
 
 
+def test_response_with_multiple_qa_pairs_valid_not_ignore_cap(capsys):
+    response = Response(
+        gpt_response=get_gpt_response(
+            """
+            questioN: Question 1
+            anSwer: Answer 1
+            question: Question 2
+            answer: Answer 2
+            """
+        ),
+        ignore_capitalization=False,
+    )
+    assert len(response.qa_pairs) == 1
+    assert response.qa_pairs[0].question == "Question 2"
+    assert response.qa_pairs[0].answer == "Answer 2"
+    assert len(response.warning_message) != 0
+    assert capsys.readouterr().err != ""
+
+
 def test_response_with_missing_question():
     response = Response(
         gpt_response=get_gpt_response("answer: Answer without question")
