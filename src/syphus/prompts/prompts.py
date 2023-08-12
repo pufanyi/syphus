@@ -125,9 +125,18 @@ def from_dict(data: Dict[str, Any]) -> Prompts:
 
 
 def read_yaml(yaml_path) -> Prompts:
-    prompts = yaml.load(yaml_path)
+    """
+    Reads a YAML file and initializes a Prompts object from its contents.
+
+    Args:
+        yaml_path (str): The path to the YAML file.
+
+    Returns:
+        Prompts: A new Prompts object.
+    """
+    prompts_data = yaml.load(yaml_path)
     examples = []
-    for example in prompts["in_context_examples"]:
+    for example in prompts_data["in_context_examples"]:
         examples.append(
             in_context_example.InContextExample(
                 example["user"],
@@ -137,4 +146,4 @@ def read_yaml(yaml_path) -> Prompts:
                 ],
             )
         )
-    return Prompts(prompts["system_message"], examples)
+    return Prompts(prompts_data["system_message"], examples)

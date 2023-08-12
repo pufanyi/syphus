@@ -1,9 +1,6 @@
 import json
-
 import syphus.prompts.qa_pair as qa_pair
-
 from syphus.prompts.info import Info
-
 from typing import Dict, List, Any
 
 
@@ -21,10 +18,18 @@ class InContextExample(object):
         context: Any,
         qa_pairs: List[qa_pair.QAPair] = [],
     ):
+        """
+        Initializes a new InContextExample object.
+
+        Args:
+            context (Any): The context for the example.
+            qa_pairs (List[QAPair], optional): A list of QAPair objects containing questions and answers.
+                Defaults to an empty list.
+        """
         self.context = Info(context).content
         self.qa_pairs = qa_pairs
 
-    def to_dict(self) -> Dict[str, any]:
+    def to_dict(self) -> Dict[str, Any]:
         """
         Converts the InContextExample object to a dictionary.
 
