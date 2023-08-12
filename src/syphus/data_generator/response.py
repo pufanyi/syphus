@@ -11,6 +11,16 @@ import syphus.utils.jsonl as jsonl
 
 
 def extend_name(name: str, format: str) -> str:
+    """
+    Extend the given filename if it doesn't already have the specified format extension.
+
+    Args:
+        name (str): The original filename.
+        format (str): The desired file format extension.
+
+    Returns:
+        str: The extended filename with the specified format extension.
+    """
     if name.endswith(format):
         return name
     else:
@@ -24,6 +34,20 @@ def get_file_path_names(
     full_response_file_name: str,
     format: str,
 ) -> Tuple[str, str, str]:
+    """
+    Generate file paths for response, error message, and full response files.
+
+    Args:
+        path (str): The directory path where the files are located.
+        response_file_name (str): The filename for the response file.
+        error_message_file_name (str): The filename for the error message file.
+        full_response_file_name (str): The filename for the full response file.
+        format (str): The desired file format extension.
+
+    Returns:
+        Tuple[str, str, str]: A tuple of file paths for response, error message,
+        and full response files.
+    """
     error_message_path = os.path.join(
         path, extend_name(error_message_file_name, format)
     )
@@ -35,6 +59,31 @@ def get_file_path_names(
 
 
 class Response(object):
+    """
+    Represents GPT generated responses and manages question-answer pairs.
+
+    This class encapsulates the handling of GPT-3 generated responses, specifically focusing on extracting question-answer pairs from the response content. It provides methods for initializing responses, processing question-answer pairs, and saving response data to files.
+
+    Attributes:
+        gpt_response (Optional[Dict[str, Any]]): The GPT response dictionary containing the assistant's generated response and related metadata.
+        question_header (str): The prefix indicating the start of a question in the response message content.
+        answer_header (str): The prefix indicating the start of an answer in the response message content.
+        ignore_capitalization (bool): If True, headers are matched without considering capitalization. Otherwise, capitalization is considered.
+        warning_message (List[str]): A list of warning messages generated during response processing, such as notifications about missing or mismatched question-answer pairs.
+        qa_pairs (List[qa_pair.QAPair]): A list of QA pairs extracted from the response, where each pair consists of a question and its corresponding answer.
+        full_response (Dict[str, Any]): The complete GPT-3 response dictionary, including the message content, role, and other metadata.
+
+    Methods:
+        __init__: Initialize the Response instance. This constructor can handle both existing data and GPT-3 response inputs.
+        to_dict: Convert the Response instance to a dictionary representation, making it easy to serialize the instance data.
+        save: Save the Response instance data to files. This method allows users to persist the extracted QA pairs, warning messages, and the full GPT-3 response in specified file formats (JSON or YAML).
+
+    Note:
+        - The class provides flexibility in initializing instances from GPT-3 responses or existing data, allowing users to seamlessly integrate the class into their workflows.
+        - It automatically processes the response content to extract question-answer pairs, handling headers and formatting variations.
+        - The `save` method enables users to save the instance data, making it convenient for further analysis and sharing with others.
+    """
+
     def __init__(
         self,
         *,
@@ -45,6 +94,20 @@ class Response(object):
         data: Optional[Dict[str, Any]] = None,
         gpt_error_messages: Optional[str] = None,
     ):
+        """
+        Initialize a Response instance with GPT-3 generated responses and QA pairs.
+
+        Args:
+            gpt_response (Optional[Dict[str, Any]]): The GPT-3 response dictionary.
+            question_header (str): The prefix indicating the start of a question.
+            answer_header (str): The prefix indicating the start of an answer.
+            ignore_capitalization (bool): Whether to ignore capitalization when matching headers.
+            data (Optional[Dict[str, Any]]): Pre-existing data to initialize the instance.
+            gpt_error_messages (Optional[str]): Error messages from GPT-3 if present.
+
+        Raises:
+            ValueError: If neither gpt_response nor gpt_error_messages are provided.
+        """
         if data is not None:
             self.full_response = data["full_response"]
             self.warning_message = data["warning_message"]
@@ -131,6 +194,12 @@ class Response(object):
                 print(warning, file=sys.stderr)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the Response instance to a dictionary representation.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing warning messages, QA pairs, and full response.
+        """
         return {
             "warning_message": self.warning_message,
             "qa_pairs": [qa_pair.to_dict() for qa_pair in self.qa_pairs],
@@ -146,6 +215,22 @@ class Response(object):
         full_response_file_name: str = "gpt_full_responses",
         format: str = "json",
     ):
+        """
+        Save the Response instance data to files.
+
+        Args:
+            path (str): The directory path to save the files.
+            response_file_name (str): The filename for the response data.
+            error_message_file_name (str): The filename for error messages.
+            full_response_file_name (str): The filename for the full response.
+            format (str): The format for saving data (json or yaml).
+
+        Raises:
+            ValueError: If an invalid format is provided.
+
+        Note:
+            This method will create the necessary directories if they do not exist.
+        """
         if format not in ["json", "yaml"]:
             raise ValueError("Format must be json or yaml.")
         if not os.path.exists(path):
@@ -180,6 +265,20 @@ def save_json(
     full_response_file_name: str = "gpt_full_responses",
     process_bar: bool = True,
 ):
+    """
+    Save response data, warning messages, and full responses to JSON files.
+
+    Args:
+        responses (Dict[str, Response]): A dictionary mapping response IDs to Response instances.
+        path (str): The directory path to save the files.
+        response_file_name (str): The filename for the response data.
+        error_message_file_name (str): The filename for error messages.
+        full_response_file_name (str): The filename for the full GPT-3 responses.
+        process_bar (bool): If True, display a progress bar during saving.
+
+    Note:
+        This function creates necessary directories if they do not exist.
+    """
     if not os.path.exists(path):
         os.makedirs(path)
     responses_dict = {}
@@ -217,6 +316,20 @@ def save_jsonl(
     full_response_file_name: str = "gpt_full_responses",
     process_bar: bool = True,
 ):
+    """
+    Save response data, warning messages, and full responses to JSONL files.
+
+    Args:
+        responses (Dict[str, Response]): A dictionary mapping response IDs to Response instances.
+        path (str): The directory path to save the files.
+        response_file_name (str): The filename for the response data.
+        error_message_file_name (str): The filename for error messages.
+        full_response_file_name (str): The filename for the full GPT-3 responses.
+        process_bar (bool): If True, display a progress bar during saving.
+
+    Note:
+        This function creates necessary directories if they do not exist.
+    """
     if not os.path.exists(path):
         os.makedirs(path)
     response_path, error_message_path, full_response_path = get_file_path_names(
@@ -265,6 +378,25 @@ def save_all(
     process_bar: bool = True,
     split: bool = False,
 ):
+    """
+    Save response data in specified format to files.
+
+    Args:
+        responses (Dict[str, Response]): A dictionary mapping response IDs to Response instances.
+        path (str): The directory path to save the files.
+        format (str): The format for saving data (json or jsonl).
+        response_file_name (str): The filename for the response data.
+        error_message_file_name (str): The filename for error messages.
+        full_response_file_name (str): The filename for the full GPT-3 responses.
+        process_bar (bool): If True, display a progress bar during saving.
+        split (bool): If True, save each response in separate subdirectories.
+
+    Raises:
+        ValueError: If an invalid format is provided.
+
+    Note:
+        This function creates necessary directories if they do not exist.
+    """
     if split:
         if format not in ["json", "yaml"]:
             raise ValueError("Format must be json or yaml.")
@@ -314,6 +446,19 @@ def read_single(
     full_response_file_name: str = "gpt_full_responses",
     format="json",
 ) -> Response:
+    """
+    Read and construct a single Response instance from saved files.
+
+    Args:
+        path (str): The directory path containing the saved files.
+        response_file_name (str): The filename for the response data.
+        error_message_file_name (str): The filename for error messages.
+        full_response_file_name (str): The filename for the full GPT-3 responses.
+        format (str): The format of saved data files (json or yaml).
+
+    Returns:
+        Response: A constructed Response instance based on the saved data.
+    """
     if format not in ["json", "yaml"]:
         raise ValueError("format must be json or yaml")
     response_path, error_message_path, full_response_path = get_file_path_names(
@@ -353,6 +498,25 @@ def read_all(
     split: bool = False,
     process_bar: bool = False,
 ) -> Dict[str, Response]:
+    """
+    Read and construct Response instances from saved files.
+
+    Args:
+        path (str): The directory path containing the saved files.
+        response_file_name (str): The filename for the response data.
+        error_message_file_name (str): The filename for error messages.
+        full_response_file_name (str): The filename for the full GPT-3 responses.
+        format (str): The format of saved data files (json or yaml).
+        split (bool): If True, responses are stored in separate subdirectories.
+        process_bar (bool): If True, display a progress bar during loading.
+
+    Returns:
+        Dict[str, Response]: A dictionary mapping response IDs to constructed Response instances.
+
+    Note:
+        - When split is True, this function loads responses from subdirectories.
+        - When split is False, this function loads responses from a single set of files.
+    """
     if split is False and process_bar is True:
         print("process_bar is only available when split is True", file=sys.stderr)
         print("process_bar is set to False", file=sys.stderr)
@@ -449,6 +613,29 @@ def merge(
     output_full_response_file_name: str = "gpt_full_responses",
     process_bar: bool = True,
 ) -> Dict[str, Response]:
+    """
+    Merge and re-save response data in different format.
+
+    Args:
+        input_path (str): The directory path containing the input response files.
+        output_path (str): The directory path to save the merged and re-saved response files.
+        input_format (str): The format of input response files (json or yaml).
+        input_response_file_name (str): The filename for the input response data.
+        input_error_message_file_name (str): The filename for input error messages.
+        input_full_response_file_name (str): The filename for the input full GPT-3 responses.
+        output_format (str): The format for saving output response files (json or jsonl).
+        output_response_file_name (str): The filename for the output response data.
+        output_error_message_file_name (str): The filename for output error messages.
+        output_full_response_file_name (str): The filename for the output full GPT-3 responses.
+        process_bar (bool): If True, display a progress bar during merging and saving.
+
+    Returns:
+        Dict[str, Response]: A dictionary mapping response IDs to Response instances.
+
+    Note:
+        - This function reads response data from input files, merges it, and re-saves the data in
+          the specified output format.
+    """
     responses = read_all(
         input_path,
         response_file_name=input_response_file_name,
