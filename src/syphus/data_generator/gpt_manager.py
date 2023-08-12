@@ -11,12 +11,12 @@ from typing import Optional
 
 class GPTManager(object):
     """
-    A class that manages interactions with the OpenAI GPT-3 engine.
+    A class that manages interactions with the OpenAI GPT engine.
 
     Attributes:
         gpt_info_path (str, optional): Path to a YAML file containing OpenAI API and GPT parameters settings.
         openai_api (openai_settings.OpenAISettings, optional): An instance of OpenAISettings containing OpenAI API settings.
-        gpt_params (gpt_params_settings.GPTParamsSettings, optional): An instance of GPTParamsSettings containing GPT-3 parameters settings.
+        gpt_params (gpt_params_settings.GPTParamsSettings, optional): An instance of GPTParamsSettings containing GPT parameters settings.
 
     Raises:
         ValueError: If neither gpt_info_path nor openai_api is provided during initialization.
@@ -59,10 +59,10 @@ class GPTManager(object):
 
     def set_gpt_params(self, gpt_params: gpt_params_settings.GPTParamsSettings):
         """
-        Set GPT-3 parameters for generating responses.
+        Set GPT parameters for generating responses.
 
         Args:
-            gpt_params (gpt_params_settings.GPTParamsSettings): An instance of GPTParamsSettings containing GPT-3 parameters settings.
+            gpt_params (gpt_params_settings.GPTParamsSettings): An instance of GPTParamsSettings containing GPT parameters settings.
 
         """
         self.gpt_params = gpt_params
