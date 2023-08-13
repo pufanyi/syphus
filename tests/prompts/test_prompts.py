@@ -1,4 +1,4 @@
-from syphus import prompts, in_context_example, qa_pair
+from syphus.prompts import prompts, in_context_example, qa_pair
 
 import yaml
 import pytest

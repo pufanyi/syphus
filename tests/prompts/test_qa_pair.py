@@ -1,7 +1,7 @@
 import yaml
 import json
 
-from syphus import qa_pair
+from syphus.prompts import qa_pair
 
 
 with open("tests/data/dense_captions_prompt.yaml", "r") as f:

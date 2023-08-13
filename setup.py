@@ -5,7 +5,12 @@ setup(
     version="0.0.1",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    install_requires=[],
+    install_requires=[
+        "ruamel.yaml==0.17.32",
+        "PyYAML==6.0.1",
+        "openai==0.27.8",
+        "orjson==3.9.4",
+    ],
     author="Fanyi Pu",
     author_email="FPU001@e.ntu.edu.sg",
     description="Syphus: Automatic Instruction-Response Generation Pipeline",

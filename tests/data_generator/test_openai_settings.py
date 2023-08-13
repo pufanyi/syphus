@@ -1,6 +1,6 @@
 import pytest
 import yaml
-from syphus import openai_settings
+from syphus.data_generator import openai_settings
 
 
 @pytest.fixture
