@@ -1,2 +1,2 @@
 def main():
-    print("test")
+    raise NotImplementedError("Syphus cli is not implemented yet.")
