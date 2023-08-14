@@ -11,7 +11,7 @@ def main():
 
     init_command(subparsers)
     query_command(subparsers)
-    format_command(subparsers)
+    merge_command(subparsers)
 
     args = parser.parse_args()
 
