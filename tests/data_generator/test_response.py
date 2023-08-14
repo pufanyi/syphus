@@ -308,7 +308,7 @@ def test_save_single_response_yaml(sample_response, sample_response_output_path)
     assert os.path.exists(os.path.join(path, "responses.yaml"))
     assert os.path.exists(os.path.join(path, "error_messages.yaml"))
     assert os.path.exists(os.path.join(path, "gpt_full_responses.yaml"))
-    loaded_sample_response = syphus_response.read_single(path, format="yaml")
+    loaded_sample_response = syphus_response.read_single(path)
     assert sample_response.to_dict() == loaded_sample_response.to_dict()
 
 
@@ -390,8 +390,8 @@ def test_split(sample_response, sample_response_output_path, capsys):
     os.makedirs(os.path.join(path, "00004"))
     with open(os.path.join(path, "00004", "responses.json"), "w") as f:
         f.write('["test"]')
-    loaded_response = syphus_response.read_all(path, split=True)
-    assert "File not found for 00004" in capsys.readouterr().err
+    loaded_response = syphus_response.read_all(path, split=True, format="json")
+    assert "No such file or directory:" in capsys.readouterr().err
 
 
 def test_save_all_other_format(sample_response, sample_response_output_path):
@@ -411,6 +411,9 @@ def test_read_single_other_format(sample_response, sample_response_output_path):
         sample_response.save(path, format="jsonl")
     with pytest.raises(ValueError):
         syphus_response.read_single(path, format="jsonl")
+    path = "tests/data/test_response_invalid"
+    with pytest.raises(FileNotFoundError):
+        syphus_response.read_single(path)
 
 
 def test_read_all_close_process_bar(
@@ -449,3 +452,23 @@ def test_merge(sample_response, sample_response_output_path):
         and all_responses["00002"].to_dict() == merged_responses["00002"].to_dict()
         and all_responses["00003"].to_dict() == merged_responses["00003"].to_dict()
     )
+
+
+def test_auto_infer_format():
+    auto_infer_format_path = "tests/data/test_auto_infer_format"
+    assert (
+        syphus_response.auto_infer_format(
+            os.path.join(auto_infer_format_path, "yaml"), "a", "b"
+        )
+        == "yaml"
+    )
+    assert (
+        syphus_response.auto_infer_format(
+            os.path.join(auto_infer_format_path, "json"), "a", "b"
+        )
+        == "json"
+    )
+    with pytest.raises(ValueError):
+        syphus_response.auto_infer_format(
+            os.path.join(auto_infer_format_path, "error"), "a", "b"
+        )

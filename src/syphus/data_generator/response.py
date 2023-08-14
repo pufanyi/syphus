@@ -438,13 +438,55 @@ def save_all(
             raise ValueError("format must be json or jsonl")
 
 
+def auto_infer_format(path: str, *file_names) -> str:
+    """
+    Automatically infer the file format based on file extensions and check if
+    the given file names are present in the specified path.
+
+    Args:
+        path (str): The directory path to search for files.
+        *file_names (str): Variable number of file names to check for.
+
+    Returns:
+        str: The inferred format if all specified file names are present with
+             the same format, otherwise raises a ValueError.
+
+    Raises:
+        ValueError: If the program cannot automatically determine the format or
+                    if specified file names are not found in the path.
+
+    Example:
+        >>> auto_infer_format("/path/to/files", "file1", "file2")
+        'json'
+    """
+    print(path, file_names, file=sys.stderr)
+    files_format = {}
+    for file in os.listdir(path):
+        format = file.split(".")[-1]
+        if format == "yml":
+            format = "yaml"
+        file_name = ".".join(file.split(".")[:-1])
+        if format not in files_format:
+            files_format[format] = set()
+        files_format[format].add(file_name)
+    for format in files_format:
+        for file_name in file_names:
+            if file_name not in files_format[format]:
+                break
+        else:
+            return format
+    raise ValueError(
+        f"In path {path}, the program cannot determine format automatically, please specify manually."
+    )
+
+
 def read_single(
     path: str,
     *,
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
-    format="json",
+    format: Optional[str] = None,
 ) -> Response:
     """
     Read and construct a single Response instance from saved files.
@@ -454,11 +496,23 @@ def read_single(
         response_file_name (str): The filename for the response data.
         error_message_file_name (str): The filename for error messages.
         full_response_file_name (str): The filename for the full GPT-3 responses.
-        format (str): The format of saved data files (json or yaml).
+        format (Optional[str]): The format for saving data (json or yaml), if None, try to infer from files.
 
     Returns:
         Response: A constructed Response instance based on the saved data.
     """
+    if format is None:
+        try:
+            format = auto_infer_format(
+                path,
+                response_file_name,
+                error_message_file_name,
+                full_response_file_name,
+            )
+        except ValueError:
+            raise FileNotFoundError(
+                f"Cannot find files {response_file_name}, {error_message_file_name}, {full_response_file_name} in {path}, or cannot infer format automatically."
+            )
     if format not in ["json", "yaml"]:
         raise ValueError("format must be json or yaml")
     response_path, error_message_path, full_response_path = get_file_path_names(
@@ -494,7 +548,7 @@ def read_all(
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
-    format: str = "json",
+    format: Optional[str] = None,
     split: bool = False,
     process_bar: bool = False,
 ) -> Dict[str, Response]:
@@ -506,7 +560,7 @@ def read_all(
         response_file_name (str): The filename for the response data.
         error_message_file_name (str): The filename for error messages.
         full_response_file_name (str): The filename for the full GPT-3 responses.
-        format (str): The format of saved data files (json or yaml).
+        format (Optional[str]): The format of saved data files (json or yaml). If None, try to infer from files.
         split (bool): If True, responses are stored in separate subdirectories.
         process_bar (bool): If True, display a progress bar during loading.
 
@@ -521,14 +575,6 @@ def read_all(
         print("process_bar is only available when split is True", file=sys.stderr)
         print("process_bar is set to False", file=sys.stderr)
         process_bar = False
-
-    response_path, error_message_path, full_response_path = get_file_path_names(
-        path,
-        response_file_name,
-        error_message_file_name,
-        full_response_file_name,
-        format,
-    )
 
     if split:
         responses = {}
@@ -545,8 +591,8 @@ def read_all(
                     format=format,
                 )
                 responses[id] = response
-            except FileNotFoundError:
-                print(f"File not found for {id}", file=sys.stderr)
+            except FileNotFoundError as e:
+                print(e, file=sys.stderr)
         return responses
     else:
         responses_dict = {}
@@ -555,6 +601,20 @@ def read_all(
             "qa_pairs": [],
             "full_response": {},
         }
+        if format is None:
+            format = auto_infer_format(
+                path,
+                response_file_name,
+                error_message_file_name,
+                full_response_file_name,
+            )
+        response_path, error_message_path, full_response_path = get_file_path_names(
+            path,
+            response_file_name,
+            error_message_file_name,
+            full_response_file_name,
+            format,
+        )
         if format == "json":
             with open(error_message_path, "r") as f:
                 error_messages = json.load(f)
@@ -603,7 +663,7 @@ def merge(
     input_path: str,
     output_path: str,
     *,
-    input_format: str = "json",
+    input_format: Optional[str] = None,
     input_response_file_name: str = "responses",
     input_error_message_file_name: str = "error_messages",
     input_full_response_file_name: str = "gpt_full_responses",
@@ -619,7 +679,7 @@ def merge(
     Args:
         input_path (str): The directory path containing the input response files.
         output_path (str): The directory path to save the merged and re-saved response files.
-        input_format (str): The format of input response files (json or yaml).
+        input_format (Optional[str]): The format of input response files (json or yaml). If None, the program will try to infer the format.
         input_response_file_name (str): The filename for the input response data.
         input_error_message_file_name (str): The filename for input error messages.
         input_full_response_file_name (str): The filename for the input full GPT-3 responses.
