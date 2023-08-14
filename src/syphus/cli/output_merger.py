@@ -1,6 +1,5 @@
 import os
 
-
 import syphus.data_generator.response as response
 
 
