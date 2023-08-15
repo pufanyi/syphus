@@ -106,7 +106,7 @@ def get_loader_by_format(format: str) -> Callable:
     if format == "json":
         return json.load
     elif format == "jsonl":
-        return jsonl.load  # Assuming jsonl is a valid module or function
+        return jsonl.load
     elif format == "yaml" or format == "yml":
         return yaml.load
     else:
@@ -143,3 +143,14 @@ def get_loader_by_path(path: str, *file_names: str) -> Callable:
     else:
         raise ValueError(f"Path {path} does not exist.")
     return get_loader_by_format(format)
+
+
+def get_saver(format: str) -> Callable:
+    if format == "json":
+        return json.dump
+    elif format == "yaml" or format == "yml":
+        return yaml.dump
+    elif format == "jsonl":
+        return jsonl.dump
+    else:
+        raise ValueError(f"Format {format} is not supported.")

@@ -9,7 +9,7 @@ import syphus.prompts.qa_pair as qa_pair
 import syphus.utils.yaml as yaml
 import syphus.utils.jsonl as jsonl
 
-from syphus.utils.file_format import auto_infer_format
+from syphus.utils.file_format import auto_infer_format, get_loader_by_format, get_saver
 
 
 def extend_name(name: str, format: str) -> str:
@@ -244,18 +244,14 @@ class Response(object):
             full_response_file_name,
             format,
         )
-        if format == "json":
-            with open(error_message_path, "w") as f:
-                json.dump(self.warning_message, f, indent=4)
-            with open(response_path, "w") as f:
-                qa_pairs_dict = [qa_pair.to_dict() for qa_pair in self.qa_pairs]
-                json.dump(qa_pairs_dict, f, indent=4)
-            with open(full_response_path, "w") as f:
-                json.dump(self.full_response, f, indent=4)
-        elif format == "yaml":
-            yaml.dump(self.warning_message, error_message_path)
-            yaml.dump([qa_pair.to_dict() for qa_pair in self.qa_pairs], response_path)
-            yaml.dump(self.full_response, full_response_path)
+        dumper = get_saver(format)
+        with open(error_message_path, "w") as f:
+            dumper(self.warning_message, f)
+        with open(response_path, "w") as f:
+            qa_pairs_dict = [qa_pair.to_dict() for qa_pair in self.qa_pairs]
+            dumper(qa_pairs_dict, f)
+        with open(full_response_path, "w") as f:
+            dumper(self.full_response, f)
 
 
 def save_json(
@@ -419,25 +415,19 @@ def save_all(
             )
     else:
         if format == "json":
-            save_json(
-                responses,
-                path,
-                response_file_name=response_file_name,
-                error_message_file_name=error_message_file_name,
-                full_response_file_name=full_response_file_name,
-                process_bar=process_bar,
-            )
+            saver = save_json
         elif format == "jsonl":
-            save_jsonl(
-                responses,
-                path,
-                response_file_name=response_file_name,
-                error_message_file_name=error_message_file_name,
-                full_response_file_name=full_response_file_name,
-                process_bar=process_bar,
-            )
+            saver = save_jsonl
         else:
             raise ValueError("format must be json or jsonl")
+        saver(
+            responses,
+            path,
+            response_file_name=response_file_name,
+            error_message_file_name=error_message_file_name,
+            full_response_file_name=full_response_file_name,
+            process_bar=process_bar,
+        )
 
 
 def read_single(
@@ -482,17 +472,13 @@ def read_single(
         full_response_file_name,
         format,
     )
-    if format == "json":
-        with open(error_message_path, "r") as f:
-            error_message = json.load(f)
-        with open(response_path, "r") as f:
-            qa_pairs = json.load(f)
-        with open(full_response_path, "r") as f:
-            full_response = json.load(f)
-    elif format == "yaml":
-        error_message = yaml.load(error_message_path)
-        qa_pairs = yaml.load(response_path)
-        full_response = yaml.load(full_response_path)
+    loader = get_loader_by_format(format)
+    with open(error_message_path, "r") as f:
+        error_message = loader(f)
+    with open(response_path, "r") as f:
+        qa_pairs = loader(f)
+    with open(full_response_path, "r") as f:
+        full_response = loader(f)
     return Response(
         data={
             "warning_message": error_message,
@@ -575,13 +561,14 @@ def read_all(
             full_response_file_name,
             format,
         )
+        loader = get_loader_by_format(format)
+        response_file = open(response_path, "r")
+        error_message_file = open(error_message_path, "r")
+        full_response_file = open(full_response_path, "r")
+        qa_pairs = loader(response_file)
+        error_messages = loader(error_message_file)
+        full_responses = loader(full_response_file)
         if format == "json":
-            with open(error_message_path, "r") as f:
-                error_messages = json.load(f)
-            with open(response_path, "r") as f:
-                qa_pairs = json.load(f)
-            with open(full_response_path, "r") as f:
-                full_responses = json.load(f)
             for id, error_messages in error_messages.items():
                 if id not in responses_dict:
                     responses_dict[id] = empty_response_dict.copy()
@@ -595,9 +582,6 @@ def read_all(
                     responses_dict[id] = empty_response_dict.copy()
                 responses_dict[id]["full_response"] = full_responses
         elif format == "jsonl":
-            error_messages = jsonl.load(error_message_path)
-            qa_pairs = jsonl.load(response_path)
-            full_responses = jsonl.load(full_response_path)
             for error_message in error_messages:
                 id = error_message["id"]
                 if id not in responses_dict:
@@ -613,6 +597,9 @@ def read_all(
                 if id not in responses_dict:
                     responses_dict[id] = empty_response_dict.copy()
                 responses_dict[id]["full_response"] = full_response["content"]
+        response_file.close()
+        error_message_file.close()
+        full_response_file.close()
         responses = {}
         for id, response_dict in responses_dict.items():
             responses[id] = Response(data=response_dict)
