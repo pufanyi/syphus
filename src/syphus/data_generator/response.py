@@ -486,7 +486,7 @@ def read_single(
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
-    format: Optional[str] = None,
+    format: str = "auto",
 ) -> Response:
     """
     Read and construct a single Response instance from saved files.
@@ -496,12 +496,12 @@ def read_single(
         response_file_name (str): The filename for the response data.
         error_message_file_name (str): The filename for error messages.
         full_response_file_name (str): The filename for the full GPT-3 responses.
-        format (Optional[str]): The format for saving data (json or yaml), if None, try to infer from files.
+        format (str): The format for saving data (json or yaml), if it is "auto", try to infer from files.
 
     Returns:
         Response: A constructed Response instance based on the saved data.
     """
-    if format is None:
+    if format == "auto":
         try:
             format = auto_infer_format(
                 path,
@@ -548,7 +548,7 @@ def read_all(
     response_file_name: str = "responses",
     error_message_file_name: str = "error_messages",
     full_response_file_name: str = "gpt_full_responses",
-    format: Optional[str] = None,
+    format: str = "auto",
     split: bool = False,
     process_bar: bool = False,
 ) -> Dict[str, Response]:
@@ -560,7 +560,7 @@ def read_all(
         response_file_name (str): The filename for the response data.
         error_message_file_name (str): The filename for error messages.
         full_response_file_name (str): The filename for the full GPT-3 responses.
-        format (Optional[str]): The format of saved data files (json or yaml). If None, try to infer from files.
+        format (str): The format of saved data files (json or yaml). If it is "auto", try to infer from files.
         split (bool): If True, responses are stored in separate subdirectories.
         process_bar (bool): If True, display a progress bar during loading.
 
@@ -601,7 +601,7 @@ def read_all(
             "qa_pairs": [],
             "full_response": {},
         }
-        if format is None:
+        if format == "auto":
             format = auto_infer_format(
                 path,
                 response_file_name,
@@ -663,7 +663,7 @@ def merge(
     input_path: str,
     output_path: str,
     *,
-    input_format: Optional[str] = None,
+    input_format: str = "auto",
     input_response_file_name: str = "responses",
     input_error_message_file_name: str = "error_messages",
     input_full_response_file_name: str = "gpt_full_responses",
@@ -679,7 +679,7 @@ def merge(
     Args:
         input_path (str): The directory path containing the input response files.
         output_path (str): The directory path to save the merged and re-saved response files.
-        input_format (Optional[str]): The format of input response files (json or yaml). If None, the program will try to infer the format.
+        input_format (str): The format of input response files (json or yaml). If it is auto, the program will try to infer the format.
         input_response_file_name (str): The filename for the input response data.
         input_error_message_file_name (str): The filename for input error messages.
         input_full_response_file_name (str): The filename for the input full GPT-3 responses.
