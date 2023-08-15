@@ -10,7 +10,11 @@ def merge_command(subparsers):
     merge_parser.add_argument("-i", "--input", help="Input file", required=True)
     merge_parser.add_argument("-o", "--output", help="Output file", required=True)
     merge_parser.add_argument(
-        "-m", "--input-format", help="Mandatory input format", default=None
+        "-m",
+        "--input-format",
+        help="Mandatory input format",
+        default="auto",
+        choices=["json", "yaml", "yml", "auto"],
     )
     merge_parser.add_argument(
         "-f", "--output-format", help="Output format", default="json"
