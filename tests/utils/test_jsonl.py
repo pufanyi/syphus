@@ -25,9 +25,15 @@ def sample_jsonl(jsonl_path):
 def test_load(jsonl_path, sample_jsonl):
     test_input = list(jsonl.load(jsonl_path))
     assert test_input == sample_jsonl
+    with open(jsonl_path, "r") as f:
+        test_input = list(jsonl.load(f))
+    assert test_input == sample_jsonl
 
 
 def test_dump(jsonl_output_path, sample_jsonl):
     test_input = sample_jsonl
     jsonl.dump(test_input, jsonl_output_path)
+    assert list(jsonl.load(jsonl_output_path)) == test_input
+    with open(jsonl_output_path, "w") as f:
+        jsonl.dump(test_input, f)
     assert list(jsonl.load(jsonl_output_path)) == test_input

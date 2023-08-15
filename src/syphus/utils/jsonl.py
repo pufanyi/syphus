@@ -1,36 +1,59 @@
-import orjson
-from typing import Any, Dict, Iterable
+import json
+import io
+from typing import Any, Dict, Iterable, Union
 
 
-def load(path: str) -> Iterable[Dict[str, Any]]:
+def load(file: Union[str, io.IOBase]) -> Iterable[Dict[str, Any]]:
     """
-    Load and parse a JSON file into an iterable of dictionaries.
+    Load and parse a JSON file, yielding dictionaries for each non-empty line.
+
+    This function accepts either a file path or an IOBase object and reads the file line by line. Each non-empty line is parsed as a JSON object and yielded as a dictionary.
 
     Args:
-        path (str): The path to the JSON file.
+        file (Union[str, io.IOBase]): The path to the file or an IOBase object.
 
     Yields:
-        dict: A dictionary containing the parsed JSON data for each line in the file.
+        Iterable[Dict[str, Any]]: A dictionary representing the parsed JSON object.
 
-    Returns:
-        Iterable[Dict[str, Any]]: An iterable of dictionaries, each representing a parsed JSON object from the file.
+    Example:
+        >>> with open("data.json", "r") as f:
+        ...     for entry in load(f):
+        ...         print(entry)
     """
-    with open(path, "rb") as f:
-        for line in f:
-            yield orjson.loads(line)
+    if isinstance(file, str):
+        with open(file, "r") as f:
+            for line in f:
+                if line.strip():
+                    yield json.loads(line)
+    elif isinstance(file, io.IOBase):
+        for line in file:
+            if line.strip():
+                yield json.loads(line)
+    else:
+        raise TypeError("file must be a path or an IOBase object")
 
 
-def dump(data: Iterable[Dict[str, Any]], path: str):
+def dump(data: Iterable[Dict[str, Any]], file: Union[str, io.IOBase]):
     """
-    Serialize and save a sequence of dictionaries as a JSON file.
+    Serialize and write a sequence of dictionaries as JSON to a file.
+
+    This function takes an iterable of dictionaries and writes each dictionary as a JSON object on a separate line in the specified file.
 
     Args:
-        data (Iterable[Dict[str, Any]]): An iterable of dictionaries to be serialized and saved.
-        path (str): The path to save the JSON file.
+        data (Iterable[Dict[str, Any]]): An iterable of dictionaries to be serialized.
+        file (Union[str, io.IOBase]): The path to the file or an IOBase object.
 
-    Notes:
-        Each dictionary in the input sequence will be serialized and written as a separate line in the file.
+    Example:
+        >>> data = [{"key1": "value1"}, {"key2": "value2"}]
+        >>> with open("output.json", "w") as f:
+        ...     dump(data, f)
     """
-    with open(path, "wb") as f:
+    if isinstance(file, str):
+        with open(file, "w") as f:
+            for line in data:
+                f.write(json.dumps(line) + "\n")
+    elif isinstance(file, io.IOBase):
         for line in data:
-            f.write(orjson.dumps(line) + b"\n")
+            file.write(json.dumps(line) + "\n")
+    else:
+        raise TypeError("file must be a path or an IOBase object")

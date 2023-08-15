@@ -1,5 +1,9 @@
 import sys
 import os
+import json
+import syphus.utils.yaml as yaml
+import syphus.utils.jsonl as jsonl
+from typing import Callable
 
 
 def auto_infer_format(path: str, *file_names: str) -> str:
@@ -77,3 +81,65 @@ def auto_infer_single_file(path: str) -> str:
     if format == "yml":
         format = "yaml"
     return format
+
+
+def get_loader_by_format(format: str) -> Callable:
+    """
+    Returns the appropriate loader function based on the provided file format.
+
+    This function takes a file format as input and returns the corresponding loader function
+    for that format. The supported formats are "json", "jsonl", "yaml", and "yml".
+
+    Args:
+        format (str): The file format for which to get the loader function.
+
+    Returns:
+        Callable: The loader function associated with the provided format.
+
+    Raises:
+        ValueError: If the specified format is not supported.
+
+    Example:
+        >>> loader = get_loader_by_format("json")
+        >>> data = loader(open("data.json"))
+    """
+    if format == "json":
+        return json.load
+    elif format == "jsonl":
+        return jsonl.load  # Assuming jsonl is a valid module or function
+    elif format == "yaml" or format == "yml":
+        return yaml.load
+    else:
+        raise ValueError(f"Format {format} is not supported.")
+
+
+def get_loader_by_path(path: str, *file_names: str) -> Callable:
+    """
+    Returns the appropriate loader function based on the provided path and file names.
+
+    This function takes a directory path and a variable number of file names as input. It
+    infers the file format based on the provided path and returns the corresponding loader
+    function for that format. The file names are used for format inference when the path
+    points to a directory.
+
+    Args:
+        path (str): The directory path to search for files.
+        *file_names (str): Variable number of file names to assist in format inference.
+
+    Returns:
+        Callable: The loader function associated with the inferred format.
+
+    Raises:
+        ValueError: If the path does not exist or if the format cannot be inferred.
+
+    Example:
+        >>> loader = get_loader_by_path("/path/to/files", "file1", "file2")
+        >>> data = loader(open("data.json"))
+    """
+    if os.path.isfile(path):
+        format = auto_infer_single_file(path)
+    elif os.path.isdir(path):
+        format = auto_infer_format(path, *file_names)
+    else:
+        raise ValueError(f"Path {path} does not exist.")
+    return get_loader_by_format(format)

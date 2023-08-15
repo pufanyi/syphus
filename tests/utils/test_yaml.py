@@ -10,6 +10,9 @@ def test_load_yaml():
     with open(yaml_data_path, "r") as f:
         standard_data = standard_yaml.safe_load(f)
     assert test_data == standard_data
+    with open(yaml_data_path, "r") as f:
+        test_data = test_yaml.load(f)
+    assert test_data == standard_data
 
 
 def test_dump_yaml():
@@ -17,6 +20,11 @@ def test_dump_yaml():
         standard_data = standard_yaml.safe_load(f)
     test_output_path = "tests/test_output/test_dump_yaml.yaml"
     test_yaml.dump(standard_data, test_output_path)
+    with open(test_output_path, "r") as f:
+        test_data = standard_yaml.safe_load(f)
+    assert test_data == standard_data
+    with open(test_output_path, "w") as f:
+        test_yaml.dump(standard_data, f)
     with open(test_output_path, "r") as f:
         test_data = standard_yaml.safe_load(f)
     assert test_data == standard_data

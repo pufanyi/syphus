@@ -1,6 +1,7 @@
 from ruamel.yaml import YAML
-from typing import Dict, Any
+from typing import Dict, Any, Union
 import io
+
 
 yaml = YAML()
 
@@ -11,10 +12,10 @@ def dumps(data: Dict[Any, Any], **kw) -> str:
 
     Args:
         data (Dict[Any, Any]): The dictionary to be converted to YAML.
-        **kw: Additional keyword arguments to be passed to the ruamel.yaml.dump function.
+        **kw: Additional keyword arguments to pass to the ruamel.yaml.dump function.
 
     Returns:
-        str: A string containing the YAML-formatted representation of the input dictionary.
+        str: The YAML-formatted string representing the input dictionary.
     """
     output_stream = io.StringIO()
     yaml.dump(data, output_stream, **kw)
@@ -22,20 +23,25 @@ def dumps(data: Dict[Any, Any], **kw) -> str:
     return yaml_string
 
 
-def dump(data: Dict[Any, Any], file_name: str, **kw):
+def dump(data: Dict[Any, Any], file_name: Union[str, io.IOBase], **kw):
     """
-    Serialize a dictionary to a YAML file.
+    Write a dictionary to a YAML file.
 
     Args:
-        data (Dict[Any, Any]): The dictionary to be serialized.
-        file_name (str): The name of the file to save the YAML data to.
-        **kw: Additional keyword arguments to be passed to the ruamel.yaml.dump function.
+        data (Dict[Any, Any]): The dictionary to be written to the YAML file.
+        file_name (Union[str, io.IOBase]): The name of the file or a file-like object to write to.
+        **kw: Additional keyword arguments to pass to the ruamel.yaml.dump function.
 
-    Returns:
-        None
+    Raises:
+        TypeError: If file_name is neither a string nor a file-like object.
     """
-    with open(file_name, "w") as f:
-        yaml.dump(data, f, **kw)
+    if isinstance(file_name, str):
+        with open(file_name, "w") as f:
+            yaml.dump(data, f, **kw)
+    elif isinstance(file_name, io.IOBase):
+        yaml.dump(data, file_name, **kw)
+    else:
+        raise TypeError("file_name must be a string or a file-like object")
 
 
 def loads(data: str, **kw) -> Dict[Any, Any]:
@@ -44,27 +50,35 @@ def loads(data: str, **kw) -> Dict[Any, Any]:
 
     Args:
         data (str): The YAML-formatted string to be parsed.
-        **kw: Additional keyword arguments to be passed to the ruamel.yaml.load function.
+        **kw: Additional keyword arguments to pass to the ruamel.yaml.load function.
 
     Returns:
-        Dict[Any, Any]: A dictionary containing the parsed data from the YAML-formatted string.
+        Dict[Any, Any]: The dictionary parsed from the input YAML-formatted string.
     """
     return yaml.load(data, **kw)
 
 
-def load(file_name: str, **kw) -> Dict[Any, Any]:
+def load(file: Union[str, io.IOBase], **kw) -> Dict[Any, Any]:
     """
-    Load a YAML file and parse its contents into a dictionary.
+    Load a dictionary from a YAML file.
 
     Args:
-        file_name (str): The name of the YAML file to be loaded.
-        **kw: Additional keyword arguments to be passed to the ruamel.yaml.load function.
+        file (Union[str, io.IOBase]): The name of the file or a file-like object to read from.
+        **kw: Additional keyword arguments to pass to the ruamel.yaml.load function.
+
+    Raises:
+        TypeError: If file is neither a string nor a file-like object.
 
     Returns:
-        Dict[Any, Any]: A dictionary containing the parsed data from the YAML file.
+        Dict[Any, Any]: The dictionary parsed from the input YAML file.
     """
-    with open(file_name, "r") as f:
-        return yaml.load(f, **kw)
+    if isinstance(file, str):
+        with open(file, "r") as f:
+            return yaml.load(f, **kw)
+    elif isinstance(file, io.IOBase):
+        return yaml.load(file, **kw)
+    else:
+        raise TypeError("file must be a string or a file-like object")
 
 
 def equals(data1: str, data2: str) -> bool:
