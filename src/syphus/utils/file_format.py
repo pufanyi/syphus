@@ -2,10 +2,15 @@ import sys
 import os
 
 
-def auto_infer_format(path: str, *file_names) -> str:
+def auto_infer_format(path: str, *file_names: str) -> str:
     """
-    Automatically infer the file format based on file extensions and check if
+    Automatically infers the file format based on file extensions and checks if
     the given file names are present in the specified path.
+
+    This function iterates through the files in the specified directory path and
+    groups them by their extensions. It then checks if the provided file names
+    exist within the grouped formats. If all specified file names are present
+    with the same format, that format is returned.
 
     Args:
         path (str): The directory path to search for files.
@@ -13,7 +18,7 @@ def auto_infer_format(path: str, *file_names) -> str:
 
     Returns:
         str: The inferred format if all specified file names are present with
-             the same format, otherwise raises a ValueError.
+             the same format.
 
     Raises:
         ValueError: If the program cannot automatically determine the format or
@@ -42,3 +47,33 @@ def auto_infer_format(path: str, *file_names) -> str:
     raise ValueError(
         f"In path {path}, the program cannot determine format automatically, please specify manually."
     )
+
+
+def auto_infer_single_file(path: str) -> str:
+    """
+    Automatically infers the format of a single file based on its extension.
+
+    This function extracts the extension of the provided file path and returns
+    the corresponding format. If the extension is 'yml', it is considered as
+    'yaml' format.
+
+    Args:
+        path (str): The path of the file to infer the format for.
+
+    Returns:
+        str: The inferred format of the file.
+
+    Raises:
+        ValueError: If the provided path does not correspond to an existing file.
+
+    Example:
+        >>> auto_infer_single_file("/path/to/file.json")
+        'json'
+    """
+    if not os.path.isfile(path):
+        raise ValueError(f"File {path} does not exist.")
+    base_name = os.path.basename(path)
+    format = base_name.split(".")[-1]
+    if format == "yml":
+        format = "yaml"
+    return format
