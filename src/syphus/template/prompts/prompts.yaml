@@ -1,0 +1,22 @@
+system_message: |
+  Feel free to include system messages in this section. For practical illustration, take a look at the examples available on this GitHub repository: https://github.com/Luodian/Otter/tree/main/mimic-it/syphus/prompts.
+  You can use multiple lines for your system messages.
+in_context_examples:
+  - user:
+      - info_1: You have the option to provide multiple pieces of information here.
+      - info_2:
+        - info_2_1: You can even organize the information hierarchically.
+        - info_2_2: |
+            Additionally, it's possible to insert multiple lines of content.
+            This is line 2.
+    assistant:
+      - question: Experiment with a sample question in this area.
+        answer: Test out a response for the example question here.
+      - question: Don't hesitate to include numerous questions.
+        answer: Here is the answer corresponding to the second question.
+  - user: Try adding several more instances as examples.
+    assistant:
+      - question: Example question 1.
+        answer: Response 1.
+      - question: Example question 2.
+        answer: Response 2.
