@@ -22,10 +22,12 @@ class Info(object):
     """
 
     def __init__(
-        self, info: Any, *, id: Optional[str] = None, converting_type: str = "str"
+        self, info: Any, *, id: Optional[str] = None, converting_type: str = "yaml"
     ):
         self.id = id
-        if converting_type == "str":
+        if isinstance(info, str):
+            self.content = info
+        elif converting_type == "str":
             self.content = str(info)
         elif converting_type == "yaml":
             self.content = yaml.dumps(info)
@@ -78,7 +80,13 @@ def from_dict(
     return Info(info, id=id)
 
 
-def read_single(file_path: str, *, format: str = "auto") -> Info:
+def read_single(
+    file_path: str,
+    *,
+    format: str = "auto",
+    has_id: bool = False,
+    mandatory_id: Optional[str] = None
+) -> Info:
     """
     Reads a single Info object from a file.
 
@@ -87,6 +95,8 @@ def read_single(file_path: str, *, format: str = "auto") -> Info:
     Args:
         file_path (str): The path to the file containing the information.
         format (str, optional): The format of the file. Defaults to "auto".
+        has_id (bool, optional): Whether the information has an ID. Defaults to False.
+        mandatory_id (Optional[str], optional): A mandatory identifier for the information. Overrides 'has_id'. Defaults to None.
 
     Returns:
         Info: The read Info object.
@@ -95,7 +105,8 @@ def read_single(file_path: str, *, format: str = "auto") -> Info:
     if format == "auto":
         format = auto_infer_single_file(file_path)
     loader = get_loader_by_format(format)
-    return from_dict(loader(file_path))
+    with open(file_path, "r") as f:
+        return from_dict(loader(f), has_id=has_id, mandatory_id=mandatory_id)
 
 
 def load(file_path: str, *, format: str = "auto") -> Iterable[Info]:
@@ -115,8 +126,27 @@ def load(file_path: str, *, format: str = "auto") -> Iterable[Info]:
     if format == "auto":
         format = auto_infer_single_file(file_path)
     loader = get_loader_by_format(format)
-    infos = loader(file_path)
-    if isinstance(infos, dict):
-        infos = infos.items()
+    with open(file_path, "r") as f:
+        infos = loader(f)
+        if isinstance(infos, dict):
+            infos = infos.items()
+        for info in infos:
+            yield from_dict(info, has_id=True)
+
+
+def to_dict(infos: Iterable[Info]) -> Dict[str, str]:
+    """
+    Convert Info objects to a dictionary.
+
+    This function takes an iterable of Info objects and converts them into a dictionary where the keys are the IDs of the Info objects and the values are the content of the Info objects.
+
+    Args:
+        infos (Iterable[Info]): An iterable of Info objects.
+
+    Returns:
+        Dict[str, str]: A dictionary mapping Info IDs to their content.
+    """
+    infos_dict = {}
     for info in infos:
-        yield from_dict(info, has_id=True)
+        infos_dict[info.id] = info.content
+    return infos_dict

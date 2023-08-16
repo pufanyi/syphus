@@ -1,0 +1,29 @@
+[
+    {
+        "id": "00001",
+        "name": "John",
+        "grade": {
+            "math": 90,
+            "english": 80,
+            "science": 95
+        }
+    },
+    {
+        "id": "00002",
+        "name": "Jane",
+        "grade": {
+            "math": 100,
+            "english": 90,
+            "science": 100
+        }
+    },
+    {
+        "id": "00003",
+        "name": "Mary",
+        "grade": {
+            "math": 80,
+            "english": 100,
+            "science": 100
+        }
+    }
+]

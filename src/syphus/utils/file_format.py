@@ -75,7 +75,7 @@ def auto_infer_single_file(path: str) -> str:
         'json'
     """
     if not os.path.isfile(path):
-        raise ValueError(f"File {path} does not exist.")
+        raise ValueError(f"File {path} does not exist, or is not a file.")
     base_name = os.path.basename(path)
     format = base_name.split(".")[-1]
     if format == "yml":

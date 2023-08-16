@@ -1,0 +1,9 @@
+{
+    "id": "00001",
+    "name": "John",
+    "grade": {
+        "math": 90,
+        "english": 80,
+        "science": 95
+    }
+}
