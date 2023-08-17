@@ -1,4 +1,5 @@
 import os
+import shutil
 import filecmp
 import subprocess
 
@@ -34,5 +35,13 @@ def same_folder(folder1, folder2):
 
 
 def test_init():
+    os.makedirs("tests/test_output/init")
     subprocess.run(["syphus", "init", "tests/test_output/init"])
     same_folder("tests/test_output/init", "src/syphus/resources/template")
+    shutil.rmtree("tests/test_output/init")
+    subprocess.run(["syphus", "init", "tests/test_output/init"])
+    same_folder("tests/test_output/init", "src/syphus/resources/template")
+    try:
+        subprocess.run(["syphus", "init", "tests/test_output/init"])
+    except subprocess.CalledProcessError as e:
+        assert "FileExistsError" in str(e)
