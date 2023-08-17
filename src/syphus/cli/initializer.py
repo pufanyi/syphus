@@ -17,5 +17,7 @@ def init(args):
         raise FileExistsError("Folder is not empty")
 
     resource_path = pkg_resources.resource_filename("syphus", "resources")
-    assert os.path.exists(resource_path), f"Template folder does not exist: {resource_path}"
+    assert os.path.exists(
+        resource_path
+    ), f"Template folder does not exist: {resource_path}"
     # raise ValueError(resource_path)
