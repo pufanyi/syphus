@@ -15,6 +15,9 @@ def load(file: Union[str, io.IOBase]) -> Iterable[Dict[str, Any]]:
     Yields:
         Iterable[Dict[str, Any]]: A dictionary representing the parsed JSON object.
 
+    Note:
+        If you want to use IOBase objects, do not close the file before you are done with the returned iterator.
+
     Example:
         >>> with open("data.json", "r") as f:
         ...     for entry in load(f):
