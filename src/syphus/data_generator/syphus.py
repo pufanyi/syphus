@@ -1,6 +1,6 @@
 import os
 
-from typing import Optional, Tuple, Iterable
+from typing import Optional, Tuple, Iterable, Union
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
@@ -30,7 +30,7 @@ class Syphus(object):
         gpt_info_path: Optional[str] = None,
         openai_api: Optional[openai_settings.OpenAISettings] = None,
         gpt_params: Optional[gpt_params_settings.GPTParamsSettings] = None,
-        prompts: prompts.Prompts | str,
+        prompts: Union[prompts.Prompts, str],
     ):
         """
         Initialize the Syphus instance.
@@ -39,7 +39,7 @@ class Syphus(object):
             gpt_info_path (str, optional): Path to a YAML file containing OpenAI API and GPT parameters settings.
             openai_api (gpt_manager.OpenAISettings, optional): An instance of OpenAISettings containing OpenAI API settings.
             gpt_params (gpt_manager.GPTParamsSettings, optional): An instance of GPTParamsSettings containing GPT-3 parameters settings.
-            prompts (prompts.Prompts | str): Either an instance of Prompts or a path to a YAML file containing conversation prompts and messages.
+            prompts (Union[prompts.Prompts, str]): Either an instance of Prompts or a path to a YAML file containing conversation prompts and messages.
 
         """
         self.gpt_manager = gpt_manager.GPTManager(
