@@ -5,6 +5,7 @@ import syphus
 from glob import glob
 
 from syphus.data_generator.syphus import Syphus
+from syphus.utils.file_format import create_output_folder
 
 
 def query_command(subparsers):
@@ -22,10 +23,13 @@ def query_command(subparsers):
         "-s", "--split", action="store_true", help="Split every information"
     )
     query_parser.add_argument(
-        "--prompts_format",
-        help="Format of prompts file",
-        default="auto",
-        choices=["auto", "json", "yaml", "yml"],
+        "--output_format",
+        help="Format of output file",
+        default="json",
+        choices=["json", "jsonl", "yaml", "yml"],
+    )
+    query_parser.add_argument(
+        "--threads", "-t", help="Number of threads to use", default=8, type=int
     )
     query_parser.set_defaults(func=query)
 
@@ -50,20 +54,43 @@ def get_files_from_args(args: argparse.Namespace):
     if args.input is None:
         args.input = get_file(args.file, "media_infos")
     if args.prompts is None:
-        args.prompts = get_file(args.file, "prompts")
+        args.prompts = os.path.join(args.file, "prompts.yaml")
     if args.output is None:
         args.output = os.path.join(args.file, "responses")
+    if args.output_format == "yml":
+        args.output_format = "yaml"
+    if args.split:
+        assert (
+            args.output_format
+            in [
+                "json",
+                "yaml",
+            ],
+            "Split only supports json and yaml.",
+        )
+    else:
+        assert (
+            args.output_format
+            in [
+                "json",
+                "jsonl",
+            ],
+            "Output format must be json, or jsonl.",
+        )
     assert os.path.exists(args.config), f"Config file {args.config} does not exist."
     assert os.path.exists(args.input), f"Input file {args.input} does not exist."
     assert os.path.exists(args.prompts), f"Prompts file {args.prompts} does not exist."
-    if os.path.exists(args.output):
-        pass
+    create_output_folder(args.output)
 
 
 def query(args: argparse.Namespace):
     get_files_from_args(args)
-    syphus_object = Syphus(args.config)
+    syphus_object = Syphus(gpt_info_path=args.config, prompts=args.prompts)
     infos = syphus.prompts.info.load(args.input)
     syphus_object.query_all_infos_and_save(
         infos,
+        args.output,
+        num_threads=args.threads,
+        format=args.output_format,
+        split=args.split,
     )

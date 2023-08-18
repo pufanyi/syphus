@@ -8,7 +8,7 @@ import syphus.data_generator.gpt_manager as gpt_manager
 import syphus.data_generator.openai_settings as openai_settings
 import syphus.data_generator.gpt_params_settings as gpt_params_settings
 import syphus.data_generator.response as syphus_response
-import syphus.prompts.prompts as prompts
+import syphus.prompts.prompts as syphus_prompts
 
 from syphus.data_generator.response import Response
 from syphus.prompts.info import Info
@@ -20,7 +20,7 @@ class Syphus(object):
 
     Attributes:
         gpt_manager (gpt_manager.GPTManager): An instance of GPTManager for managing GPT-3 interactions.
-        prompts (prompts.Prompts): An instance of Prompts containing conversation prompts and messages.
+        prompts (syphus.prompts.prompts.Prompts): An instance of Prompts containing conversation prompts and messages.
 
     """
 
@@ -30,7 +30,7 @@ class Syphus(object):
         gpt_info_path: Optional[str] = None,
         openai_api: Optional[openai_settings.OpenAISettings] = None,
         gpt_params: Optional[gpt_params_settings.GPTParamsSettings] = None,
-        prompts: Union[prompts.Prompts, str],
+        prompts: Union[syphus_prompts.Prompts, str],
     ):
         """
         Initialize the Syphus instance.
@@ -46,8 +46,8 @@ class Syphus(object):
             gpt_info_path=gpt_info_path, openai_api=openai_api, gpt_params=gpt_params
         )
         if isinstance(prompts, str):
-            self.prompts = prompts.Prompts.from_yaml(prompts)
-        elif isinstance(prompts, prompts.Prompts):
+            self.prompts = syphus_prompts.read_yaml(prompts)
+        elif isinstance(prompts, syphus_prompts.Prompts):
             self.prompts = prompts
         else:
             raise ValueError("Must provide either prompts yaml path or prompts object")
