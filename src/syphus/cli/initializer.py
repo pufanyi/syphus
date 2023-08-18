@@ -2,6 +2,8 @@ import os
 import shutil
 import pkg_resources
 
+from syphus.utils.file_format import remove_folder
+
 
 def init_command(subparsers):
     init_parser = subparsers.add_parser("init", help="Initialize the project.")
@@ -10,11 +12,7 @@ def init_command(subparsers):
 
 
 def init(args):
-    if os.path.exists(args.folder):
-        if os.listdir(args.folder):
-            raise FileExistsError("Folder is not empty")
-        else:
-            os.rmdir(args.folder)
+    remove_folder(args.folder)
 
     resource_path = pkg_resources.resource_filename("syphus", "resources")
     template_path = os.path.join(resource_path, "template")

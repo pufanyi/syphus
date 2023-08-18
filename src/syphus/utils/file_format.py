@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import shutil
 import syphus.utils.yaml as yaml
 import syphus.utils.jsonl as jsonl
 from typing import Callable
@@ -146,6 +147,28 @@ def get_loader_by_path(path: str, *file_names: str) -> Callable:
 
 
 def get_saver(format: str) -> Callable:
+    """
+    Returns a data saving function based on the specified format.
+
+    This function takes a format as input and returns the appropriate data saving function based on the format.
+    The supported formats are "json", "yaml"/"yml", and "jsonl".
+
+    Args:
+        format (str): The format of the data to be saved.
+
+    Returns:
+        Callable: The data saving function for the specified format.
+
+    Raises:
+        ValueError: If the provided format is not supported.
+
+    Example:
+        >>> saver = get_saver("json")
+        >>> data = {"key": "value"}
+        >>> with open("data.json", "w") as f:
+        ...     saver(data, f)
+    """
+
     if format == "json":
         return json.dump
     elif format == "yaml" or format == "yml":
@@ -154,3 +177,44 @@ def get_saver(format: str) -> Callable:
         return jsonl.dump
     else:
         raise ValueError(f"Format {format} is not supported.")
+
+
+def remove_folder(path: str, *, force: bool = False):
+    """
+    Removes a folder at the specified path.
+
+    This function removes the folder at the given path. If the 'force' parameter is set to True,
+    it removes the folder and its contents recursively.
+
+    Args:
+        path (str): The path of the folder to be removed.
+        force (bool, optional): If True, remove the folder and its contents. If False,
+                               remove only if the folder is empty. Default is False.
+
+    Example:
+        >>> remove_folder("my_folder")
+    """
+    if os.path.exists(path):
+        if force:
+            shutil.rmtree(path)
+        else:
+            os.rmdir(path)
+
+
+def create_output_folder(path: str, *, force: bool = False):
+    """
+    Creates an output folder at the specified path.
+
+    This function creates a new output folder at the given path. If the 'force' parameter is set to True,
+    it removes any existing folder at the path before creating a new one.
+
+    Args:
+        path (str): The path at which the output folder should be created.
+        force (bool, optional): If True, remove any existing folder at the path before
+                               creating the new folder. Default is False.
+
+    Example:
+        >>> create_output_folder("output", force=True)
+    """
+    remove_folder(path, force=force)
+    os.makedirs(path)

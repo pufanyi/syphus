@@ -5,9 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 import syphus.data_generator.gpt_manager as gpt_manager
+import syphus.data_generator.openai_settings as openai_settings
+import syphus.data_generator.gpt_params_settings as gpt_params_settings
 import syphus.data_generator.response as syphus_response
+import syphus.prompts.prompts as prompts
 
-from syphus import prompts
 from syphus.data_generator.response import Response
 from syphus.prompts.info import Info
 
@@ -26,8 +28,8 @@ class Syphus(object):
         self,
         *,
         gpt_info_path: Optional[str] = None,
-        openai_api: Optional[gpt_manager.OpenAISettings] = None,
-        gpt_params: Optional[gpt_manager.GPTParamsSettings] = None,
+        openai_api: Optional[openai_settings.OpenAISettings] = None,
+        gpt_params: Optional[gpt_params_settings.GPTParamsSettings] = None,
         prompts: prompts.Prompts | str,
     ):
         """
@@ -102,7 +104,7 @@ class Syphus(object):
         response_file_name: str = "responses",
         error_message_file_name: str = "error_messages",
         full_response_file_name: str = "gpt_full_responses",
-        output_type: str = "split",
+        split: bool = True,
     ):
         """
         Generate responses for multiple Info objects, save them to files, and manage different output formats.
@@ -115,17 +117,15 @@ class Syphus(object):
             response_file_name (str, optional): Name of the response file.
             error_message_file_name (str, optional): Name of the error message file.
             full_response_file_name (str, optional): Name of the full response file.
-            output_type (str, optional): Type of output organization (split or combined).
+            split (bool, optional): Whether to split the responses into separate files.
 
         Raises:
             ValueError: If an invalid output type or format is provided.
 
         """
-        if output_type not in ["split", "combined"]:
-            raise ValueError("Invalid output type")
         if format not in ["json", "yaml", "jsonl"]:
             raise ValueError("Invalid format, must be json, yaml, or jsonl")
-        if output_type == "split":
+        if split:
             for id, response in self.query_all_infos(infos, num_threads=num_threads):
                 response.save(
                     os.path.join(path, id),
@@ -134,7 +134,7 @@ class Syphus(object):
                     error_message_file_name=error_message_file_name,
                     full_response_file_name=full_response_file_name,
                 )
-        elif output_type == "combined":
+        else:
             data = {}
             for id, response in self.query_all_infos(infos, num_threads=num_threads):
                 data[id] = response
