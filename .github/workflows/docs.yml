@@ -28,8 +28,8 @@ jobs:
           make html
 
       - name: Deploy to Docs Branch
-        run: |
-          git checkout -b docs
-          git add docs/build/html
-          git commit -m "Deploy documentation"
-          git push origin docs
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+            branch: docs
+            folder: docs/build/html
+
