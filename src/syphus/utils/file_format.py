@@ -33,7 +33,6 @@ def auto_infer_format(path: str, *file_names: str) -> str:
         >>> auto_infer_format("/path/to/files", "file1", "file2")
         'json'
     """
-    print(path, file_names, file=sys.stderr)
     files_format = {}
     for file in os.listdir(path):
         format = file.split(".")[-1]

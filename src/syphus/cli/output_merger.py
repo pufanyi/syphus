@@ -64,7 +64,7 @@ def merge(args):
     if not os.path.exists(args.input):
         raise FileNotFoundError(f"Cannot find path {args.input}")
     if os.path.exists(args.output):
-        overwrite = input(f"Path {args.output} exists. Overwrite? (y/n)")
+        overwrite = input(f"Path {args.output} exists. Overwrite? (y/n) ")
         if overwrite.lower() != "n":
             return
     response.merge(
@@ -72,11 +72,11 @@ def merge(args):
         args.output,
         input_format=args.input_format,
         output_format=args.output_format,
-        input_response=args.input_response,
-        input_error_message=args.input_error_message,
-        input_full_response=args.input_full_response,
-        output_response=args.output_response,
-        output_error_message=args.output_error_message,
-        output_full_response=args.output_full_response,
+        input_response_file_name=args.input_response,
+        input_error_message_file_name=args.input_error_message,
+        input_full_response_file_name=args.input_full_response,
+        output_response_file_name=args.output_response,
+        output_error_message_file_name=args.output_error_message,
+        output_full_response_file_name=args.output_full_response,
         process_bar=args.process_bar,
     )

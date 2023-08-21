@@ -63,9 +63,7 @@ class Syphus(object):
             Response: An instance of Response containing the generated response or error messages.
 
         """
-        # print("info", info, self.prompts)
         messages = self.prompts.get_messages()
-        # print("messages", messages)
         messages.append({"role": "user", "content": info.content})
         try:
             gpt_response = self.gpt_manager.query_gpt(messages)
