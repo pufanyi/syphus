@@ -1,0 +1,34 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x  # Replace with your desired Python version
+
+      - name: Install Dependencies
+        run: |
+          pip install -r docs/requirements.txt
+
+      - name: Build Documentation
+        run: |
+          cd docs
+          make html  # This assumes your Sphinx makefile is set up properly
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
