@@ -1,6 +1,6 @@
 import os
 
-from typing import Optional, Tuple, Iterable, Union
+from typing import Optional, Tuple, Iterable, Union, List
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
@@ -63,7 +63,9 @@ class Syphus(object):
             Response: An instance of Response containing the generated response or error messages.
 
         """
+        # print("info", info, self.prompts)
         messages = self.prompts.get_messages()
+        # print("messages", messages)
         messages.append({"role": "user", "content": info.content})
         try:
             gpt_response = self.gpt_manager.query_gpt(messages)
@@ -73,7 +75,7 @@ class Syphus(object):
         return response
 
     def query_all_infos(
-        self, infos: Iterable[Info], *, num_threads: int = 8
+        self, infos: Iterable[Info], *, num_threads: int = 4
     ) -> Iterable[Tuple[str, Optional[Response], Optional[str]]]:
         """
         Generate responses for multiple Info objects using multiple threads.
@@ -96,10 +98,10 @@ class Syphus(object):
 
     def query_all_infos_and_save(
         self,
-        infos: Iterable[Info],
+        infos: List[Info],
         path,
         *,
-        num_threads: int = 8,
+        num_threads: int = 4,
         format: str = "json",
         response_file_name: str = "responses",
         error_message_file_name: str = "error_messages",
@@ -110,7 +112,7 @@ class Syphus(object):
         Generate responses for multiple Info objects, save them to files, and manage different output formats.
 
         Args:
-            infos (Iterable[Info]): An iterable containing Info objects to generate responses for.
+            infos (List[Info]): An iterable containing Info objects to generate responses for.
             path (str): Path to the directory where the response files will be saved.
             num_threads (int, optional): Number of threads to use for concurrent response generation.
             format (str, optional): Output file format (json, yaml, or jsonl).

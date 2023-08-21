@@ -10,7 +10,9 @@ from syphus.utils.file_format import create_output_folder
 
 def query_command(subparsers):
     query_parser = subparsers.add_parser("query", help="Query GPT for QA pairs.")
-    query_parser.add_argument("file", help="The file to query GPT with.", default=None)
+    query_parser.add_argument(
+        "file", help="The file to query GPT with.", nargs="?", default=None
+    )
     query_parser.add_argument("-c", "--config", help="OpenAI Config File", default=None)
     query_parser.add_argument(
         "-i", "--input", help="Input File of Information", default=None
@@ -29,7 +31,7 @@ def query_command(subparsers):
         choices=["json", "jsonl", "yaml", "yml"],
     )
     query_parser.add_argument(
-        "--threads", "-t", help="Number of threads to use", default=8, type=int
+        "--threads", "-t", help="Number of threads to use", default=4, type=int
     )
     query_parser.set_defaults(func=query)
 
@@ -49,34 +51,28 @@ def get_file(path: str, prefix: str = "media_infos"):
 def get_files_from_args(args: argparse.Namespace):
     if args.file is None:
         args.file = os.getcwd()
+    resources_path = os.path.join(args.file, "resources")
+    config_path = os.path.join(args.file, "config")
     if args.config is None:
-        args.config = os.path.join(args.file, "gpt_info.yaml")
+        args.config = os.path.join(config_path, "gpt_info.yaml")
     if args.input is None:
-        args.input = get_file(args.file, "media_infos")
+        args.input = get_file(resources_path, "media_infos")
     if args.prompts is None:
-        args.prompts = os.path.join(args.file, "prompts.yaml")
+        args.prompts = os.path.join(config_path, "prompts.yaml")
     if args.output is None:
         args.output = os.path.join(args.file, "responses")
     if args.output_format == "yml":
         args.output_format = "yaml"
     if args.split:
-        assert (
-            args.output_format
-            in [
-                "json",
-                "yaml",
-            ],
-            "Split only supports json and yaml.",
-        )
+        assert args.output_format in [
+            "json",
+            "yaml",
+        ], "Split only supports json and yaml."
     else:
-        assert (
-            args.output_format
-            in [
-                "json",
-                "jsonl",
-            ],
-            "Output format must be json, or jsonl.",
-        )
+        assert args.output_format in [
+            "json",
+            "jsonl",
+        ], "Output format must be json, or jsonl."
     assert os.path.exists(args.config), f"Config file {args.config} does not exist."
     assert os.path.exists(args.input), f"Input file {args.input} does not exist."
     assert os.path.exists(args.prompts), f"Prompts file {args.prompts} does not exist."
@@ -86,7 +82,7 @@ def get_files_from_args(args: argparse.Namespace):
 def query(args: argparse.Namespace):
     get_files_from_args(args)
     syphus_object = Syphus(gpt_info_path=args.config, prompts=args.prompts)
-    infos = syphus.prompts.info.load(args.input)
+    infos = list(syphus.prompts.info.load(args.input))
     syphus_object.query_all_infos_and_save(
         infos,
         args.output,
