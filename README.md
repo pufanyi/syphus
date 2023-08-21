@@ -1,6 +1,4 @@
-# Syphus
-
-Syphus: Automatic Instruction-Response Generation Pipeline
+# Syphus: Automatic Instruction-Response Generation Pipeline
 
 ## Installation
 
