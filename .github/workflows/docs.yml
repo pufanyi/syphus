@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to Docs Branch
         uses: s0/git-publish-subdir-action@develop
         with:
-          repo: self
-          branch: docs
-          folder: docs/build/html
+          REPO: self
+          BRANCH: docs
+          FOLDER: docs/build/html
 
