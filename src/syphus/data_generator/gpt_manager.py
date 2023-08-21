@@ -2,7 +2,6 @@ import openai
 import time
 import sys
 
-from syphus.prompts import prompts
 import syphus.data_generator.gpt_params_settings as gpt_params_settings
 import syphus.data_generator.openai_settings as openai_settings
 

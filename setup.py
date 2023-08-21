@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="syphus",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
@@ -11,6 +11,10 @@ setup(
         "openai==0.27.8",
         "orjson==3.9.4",
     ],
+    package_data={
+        "syphus": ["resources/**/*"],
+    },
+    include_package_data=True,
     author="Fanyi Pu",
     author_email="FPU001@e.ntu.edu.sg",
     description="Syphus: Automatic Instruction-Response Generation Pipeline",
