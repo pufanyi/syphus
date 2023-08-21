@@ -30,6 +30,6 @@ jobs:
       - name: Deploy to Docs Branch
         run: |
           git checkout -b docs
-          git add docs/_build/html
+          git add docs/build/html
           git commit -m "Deploy documentation"
           git push origin docs
