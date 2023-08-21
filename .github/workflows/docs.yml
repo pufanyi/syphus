@@ -3,7 +3,7 @@ name: Deploy Documentation to Docs Branch
 on:
   push:
     branches:
-      - main
+      - publish_docs
 
 jobs:
   deploy:
