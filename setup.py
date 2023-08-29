@@ -10,6 +10,7 @@ setup(
         "PyYAML==6.0.1",
         "openai==0.27.8",
         "orjson==3.9.4",
+        "opencv-python==4.8.0.76",
     ],
     package_data={
         "syphus": ["resources/**/*"],
