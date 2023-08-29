@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-pip install syphus
+pip install --upgrade syphus
 ```
 
 ## CLI Usage
