@@ -13,6 +13,9 @@ def check_output_type(output_type: str) -> str:
         raise ValueError(
             f"Image type {output_type} not supported. Only png, jpeg, and jpg are supported."
         )
+    if output_type == "JPG":
+        output_type = "JPEG"
+    return output_type
 
 
 def convert_pil_image_to_bytes(image: Image.Image, *, output_type="png") -> bytes:
