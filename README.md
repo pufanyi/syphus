@@ -6,7 +6,7 @@
 ![](https://black.readthedocs.io/en/stable/_static/license.svg)
 ![](https://img.shields.io/badge/code%20style-black-000000.svg)
 
-[Paper](https://arxiv.org/abs/2306.05425) | [Documents](https://pufanyi.github.io/Syphus/) | [PyPI](https://pypi.org/project/syphus/)
+[Paper](https://arxiv.org/abs/2306.05425) | [Documents](https://pufanyi.github.io/Syphus/) | [PyPI](https://pypi.org/project/syphus/) | [Source Code](https://github.com/pufanyi/Syphus)
 
 ## Installation
 
