@@ -1,13 +1,12 @@
 OpenAI_API:
   type: local
   base: http://localhost:8000
-  version: 2023-03-15-xx
   key: YOUR_API_KEY
-  engine: chatgpt0301
+  engine: gpt-3.5-turbo-0613
 
 GPT_params:
   temperature: 0.7
-  max_tokens: 800
+  max_tokens: 3000
   top_p: 0.95
   frequency_penalty: 0
   presence_penalty: 0

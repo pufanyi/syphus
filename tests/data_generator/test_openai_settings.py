@@ -20,7 +20,6 @@ def test_open_ai_settings(sample_settings):
     assert settings.type == sample_settings["type"]
     assert settings.base == sample_settings["base"]
     assert settings.key == sample_settings["key"]
-    assert settings.version == sample_settings["version"]
     assert settings.engine == sample_settings["engine"]
 
 
@@ -31,7 +30,6 @@ def test_read_yaml(yaml_path, sample_settings):
     assert settings.type == sample_settings["type"]
     assert settings.base == sample_settings["base"]
     assert settings.key == sample_settings["key"]
-    assert settings.version == sample_settings["version"]
     assert settings.engine == sample_settings["engine"]
 
 

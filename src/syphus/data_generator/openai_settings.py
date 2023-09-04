@@ -32,7 +32,6 @@ class OpenAISettings(Settings):
         type: str = "local",
         base: str = "http://localhost:8000",
         key: str = "",
-        version: str = "2023-03-15",
         engine: str = "chatgpt0301",
     ):
         """
@@ -42,13 +41,11 @@ class OpenAISettings(Settings):
             type (str): The type of OpenAI instance (e.g., "local" or "remote").
             base (str): The base URL for making API requests.
             key (str): The API key used for authentication.
-            version (str): The OpenAI API version to use.
             engine (str): The OpenAI engine to utilize for generating responses.
         """
         self.type = type
         self.base = base
         self.key = key
-        self.version = version
         self.engine = engine
 
     def to_dict(self):
@@ -62,7 +59,6 @@ class OpenAISettings(Settings):
             "type": self.type,
             "base": self.base,
             "key": self.key,
-            "version": self.version,
             "engine": self.engine,
         }
 
