@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="syphus",
-    version="0.0.4.3",
+    version="0.0.5.0",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
@@ -13,6 +13,7 @@ setup(
         "orjson==3.9.4",
         "opencv-python==4.8.0.76",
         "Pillow==10.0.0",
+        "pandas==2.1.0",
     ],
     package_data={
         "syphus": ["resources/**/*"],
