@@ -99,6 +99,10 @@ def convert_image_to_base64(img_bytes: bytes) -> str:
     return base64.b64encode(img_bytes).decode("utf-8")
 
 
+def convert_pil_image_to_base64(image: Image.Image) -> str:
+    return convert_image_to_base64(convert_pil_image_to_bytes(image))
+
+
 def get_image(image_file: str, *, target_size=(224, 224), output_type="png") -> str:
     output_type = check_output_type(output_type)
     with open(image_file, "rb") as f:
