@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Union, Dict, List, Any
 from PIL import Image
 
@@ -13,7 +12,7 @@ def get_date():
     return current_date.strftime("%Y-%m")
 
 
-class Dataset(ABC):
+class Dataset(object):
     def __init__(
         self,
         name: str,
