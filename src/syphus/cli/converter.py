@@ -1,8 +1,4 @@
-import os
-import shutil
-import pkg_resources
-
-import syphus.converter.mmbench as mmbench
+import syphus.dataset.mmbench as mmbench
 
 
 def convert_command(subparsers):

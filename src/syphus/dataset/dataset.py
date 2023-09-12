@@ -90,24 +90,6 @@ class Dataset(object):
         self.images[id] = image_processor.convert_pil_image_to_base64(image)
         return id
 
-    def add_data(
-        self,
-        instruction: str,
-        answer: str,
-        image_ids: List[str],
-        rel_ins_ids: List[str],
-    ):
-        self.update_data_by_list(
-            [
-                {
-                    "instruction": instruction,
-                    "answer": answer,
-                    "image_ids": image_ids,
-                    "rel_ins_ids": rel_ins_ids,
-                }
-            ]
-        )
-
     def to_dict(self) -> Dict[str, Any]:
         return {
             "meta": self.get_meta(),
