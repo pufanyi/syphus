@@ -5,6 +5,7 @@ import io
 import os
 import cv2
 import base64
+import requests
 
 
 def check_output_type(output_type: str) -> str:
@@ -175,3 +176,15 @@ def extract_and_process_frames(
 
     cap.release()
     return frames
+
+
+def download_image(url: str, *, max_try: int = 5) -> str:
+    for _ in range(max_try):
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return convert_image_to_base64(response.content)
+            else:
+                print(f"Failed to download image. Status code: {response.status_code}")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
