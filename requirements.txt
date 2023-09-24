@@ -6,3 +6,4 @@ opencv-python==4.8.0.76
 Pillow==10.0.0
 pandas==2.1.0
 requests==2.31.0
+datasets==2.14.5
