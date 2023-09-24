@@ -65,6 +65,18 @@ class Dataset(object):
         else:
             raise TypeError("data should be list or dict")
 
+    def get_instruction_id(self, id: Union[str, None] = None) -> str:
+        if id is None:
+            id = str(len(self.data))
+        return f"{self.short_name}_INS_{id.zfill(self.max_zerofill)}"
+
+    def add_single_instruction(
+        self, data: Dict[str, Any], *, id: Union[str, None] = None
+    ):
+        id = self.get_instruction_id(id)
+        self.data[id] = data
+        return id
+
     def get_image_id(self, id: Union[str, None] = None) -> str:
         if id is None:
             id = str(len(self.images))

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="syphus",
-    version="0.0.6.0",
+    version="0.0.6.1",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
