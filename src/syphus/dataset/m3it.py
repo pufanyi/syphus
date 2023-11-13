@@ -30,7 +30,12 @@ class M3ITDataset(Dataset):
                 )
 
 
-def convert(subset: str, output_folder: str, cache_folder: str = "./cache"):
+def convert(
+    subset: str,
+    output_folder: str,
+    cache_folder: str = "./cache",
+    image_format: str = "parquet",
+):
     dataset_name = f"M3IT_{subset.upper().replace('-', '')}"
     image_file = os.path.join(output_folder, f"{dataset_name}.json")
     ins_file = os.path.join(output_folder, f"{dataset_name}_instructions.json")
@@ -38,4 +43,4 @@ def convert(subset: str, output_folder: str, cache_folder: str = "./cache"):
         os.makedirs(output_folder)
     dataset = M3ITDataset(subset, cache_folder)
     dataset.save_instructions(ins_file)
-    dataset.save_images(image_file)
+    dataset.save_images(image_file, format=image_format)

@@ -61,11 +61,11 @@ class MMBenchDataset(Dataset):
         self.update_data(data)
 
 
-def convert(datafile: str, output_folder: str):
+def convert(datafile: str, output_folder: str, image_format: str = "parquet"):
     image_file = os.path.join(output_folder, "MMBENCH.json")
     ins_file = os.path.join(output_folder, "MMBENCH_instructions.json")
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     dataset = MMBenchDataset(datafile)
     dataset.save_instructions(ins_file)
-    dataset.save_images(image_file)
+    dataset.save_images(image_file, format=image_format)

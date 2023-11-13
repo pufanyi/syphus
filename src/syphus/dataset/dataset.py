@@ -5,6 +5,7 @@ import syphus.utils.image_processor as image_processor
 
 import datetime
 import orjson
+import pandas as pd
 
 
 def get_date():
@@ -119,6 +120,18 @@ class Dataset(object):
             ins_id = str(ins_id)
         return f"{self.short_name}_INS_{ins_id.zfill(self.max_zerofill)}"
 
-    def save_images(self, ouput_file: str):
-        with open(ouput_file, "wb") as f:
-            f.write(orjson.dumps(self.images))
+    def save_images(self, ouput_file: str, *, format: str = "parquet"):
+        format = format.lower()
+        SUPPORTED_FORMAT = {"json", "csv", "parquet"}
+        assert format in SUPPORTED_FORMAT, f"format should be one of {SUPPORTED_FORMAT}"
+        if format == "json":
+            with open(ouput_file, "wb") as f:
+                f.write(orjson.dumps(self.images))
+        elif format in {"csv", "parquent"}:
+            data = pd.DataFrame.from_dict(
+                self.images, orient="index", columns=["base64"]
+            )
+            if format == "csv":
+                data.to_csv(ouput_file)
+            elif format == "parquent":
+                data.to_parquet(ouput_file)
