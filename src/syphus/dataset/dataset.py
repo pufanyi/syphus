@@ -21,7 +21,7 @@ class Dataset(object):
         author: str = "ntu",
         version: str = "0.0.1",
         date: Union[None, str] = None,
-        max_zerofill: int = 6,
+        max_zerofill: int = 8,
     ):
         self.name = name
         if short_name is None:
@@ -68,6 +68,8 @@ class Dataset(object):
     def get_instruction_id(self, id: Union[str, None] = None) -> str:
         if id is None:
             id = str(len(self.data))
+        if len(id) > 10**self.max_zerofill:
+            max_zerofill += 2
         return f"{self.short_name}_INS_{id.zfill(self.max_zerofill)}"
 
     def add_single_instruction(
