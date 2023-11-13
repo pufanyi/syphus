@@ -127,11 +127,11 @@ class Dataset(object):
         if format == "json":
             with open(ouput_file, "wb") as f:
                 f.write(orjson.dumps(self.images))
-        elif format in {"csv", "parquent"}:
+        elif format in {"csv", "parquet"}:
             data = pd.DataFrame.from_dict(
                 self.images, orient="index", columns=["base64"]
             )
             if format == "csv":
                 data.to_csv(ouput_file)
-            elif format == "parquent":
+            elif format == "parquet":
                 data.to_parquet(ouput_file)
