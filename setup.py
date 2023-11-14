@@ -3,18 +3,18 @@ from setuptools import setup, find_packages
 
 setup(
     name="syphus",
-    version="0.0.6.3",
+    version="0.0.6.4",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
-        "ruamel.yaml==0.17.32",
-        "PyYAML==6.0.1",
-        "openai==0.27.8",
-        "orjson==3.9.4",
-        "opencv-python==4.8.0.76",
-        "Pillow==10.0.1",
-        "pandas==2.1.0",
-        "requests==2.31.0",
+        "ruamel.yaml>=0.17.32",
+        "PyYAML>=6.0.1",
+        "openai>=0.27.8",
+        "orjson>=3.9.4",
+        "opencv-python>=4.8.0.76",
+        "Pillow>=10.0.1",
+        "pandas>=2.1.0",
+        "requests>=2.31.0",
     ],
     package_data={
         "syphus": ["resources/**/*"],
