@@ -37,7 +37,7 @@ def convert(
     image_format: str = "parquet",
 ):
     dataset_name = f"M3IT_{subset.upper().replace('-', '')}"
-    image_file = os.path.join(output_folder, f"{dataset_name}.json")
+    image_file = os.path.join(output_folder, f"{dataset_name}.{image_format.lower()}")
     ins_file = os.path.join(output_folder, f"{dataset_name}_instructions.json")
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
