@@ -188,3 +188,29 @@ def download_image(url: str, *, max_try: int = 5) -> str:
                 print(f"Failed to download image. Status code: {response.status_code}")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
+
+
+def convert_bytes_to_pil_image(image_bytes: bytes) -> Image.Image:
+    """
+    Convert image data in bytes format to a PIL Image object.
+
+    Args:
+        image_bytes (bytes): The input image data in bytes.
+
+    Returns:
+        Image.Image: The PIL Image object.
+    """
+    return Image.open(io.BytesIO(image_bytes))
+
+
+def convert_base64_to_pil_image(image_base64: str) -> Image.Image:
+    """
+    Convert image data in base64-encoded string format to a PIL Image object.
+
+    Args:
+        image_base64 (str): The input image data in base64-encoded string format.
+
+    Returns:
+        Image.Image: The PIL Image object.
+    """
+    return convert_bytes_to_pil_image(base64.b64decode(image_base64))
